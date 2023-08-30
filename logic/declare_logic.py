@@ -102,9 +102,10 @@ def declare_logic():
         if from_account.AcctBalance > amount:
             # #Not Enough Funds - if Loan exists move to cover Overdraft (transfer Loan to from_acct)
             transfer = models.Transfer()
-            transfer.FromAccountID = 3000
+            transfer.FromAccountID = 3000 # add link account to checking and savings
             transfer.ToAccountID = fromAcctId
             transfer.Amount = amount - from_account.AcctBalance 
+            transfer.TransactionDate = date.today()
             session.add(transfer)
             
         from_trans = models.Transaction()
