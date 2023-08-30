@@ -1,0 +1,117 @@
+about:
+  date: August 29, 2023 17:12:14
+  recent_changes: works with modified safrs-react-admin
+  version: 0.0.0
+api_root: '{http_type}://{swagger_host}:{port}/{api}'
+authentication:
+  endpoint: '{http_type}://{swagger_host}:{port}/api/auth/login'
+info:
+  number_relationships: 4
+  number_tables: 4
+resources:
+  Account:
+    attributes:
+    - label: ' Account I D*'
+      name: AccountID
+      search: true
+      sort: true
+    - name: CustomerID
+    - name: AccountType
+    - name: AcctBalance
+    - name: OpenDate
+    tab_groups:
+    - direction: tomany
+      fks:
+      - AccountID
+      name: TransactionList
+      resource: Transaction
+    - direction: tomany
+      fks:
+      - FromAccountID
+      name: TransferList
+      resource: Transfer
+    - direction: tomany
+      fks:
+      - ToAccountID
+      name: TransferList1
+      resource: Transfer
+    - direction: toone
+      fks:
+      - CustomerID
+      name: Customer
+      resource: Customer
+    type: Account
+    user_key: AccountID
+  Customer:
+    attributes:
+    - label: ' First Name*'
+      name: FirstName
+      search: true
+      sort: true
+    - name: LastName
+    - name: Email
+    - name: PhoneNumber
+    - name: Address
+    - name: BirthDate
+      type: DATE
+    - name: RegistrationDate
+    - name: UserName
+      required: true
+    - name: CustomerID
+    - name: Password
+      required: true
+    tab_groups:
+    - direction: tomany
+      fks:
+      - CustomerID
+      name: AccountList
+      resource: Account
+    type: Customer
+    user_key: FirstName
+  Transaction:
+    attributes:
+    - label: ' Transaction I D*'
+      name: TransactionID
+      search: true
+      sort: true
+    - name: AccountID
+    - name: TransactionType
+    - name: TotalAmount
+    - name: Deposit
+    - name: Withdrawl
+    - name: ItemImage
+    - name: TransactionDate
+    tab_groups:
+    - direction: toone
+      fks:
+      - AccountID
+      name: Account
+      resource: Account
+    type: Transaction
+    user_key: TransactionID
+  Transfer:
+    attributes:
+    - label: ' Transaction I D*'
+      name: TransactionID
+      search: true
+      sort: true
+    - name: FromAccountID
+    - name: ToAccountID
+    - name: Amount
+    - name: TransactionDate
+    tab_groups:
+    - direction: toone
+      fks:
+      - FromAccountID
+      name: Account
+      resource: Account
+    - direction: toone
+      fks:
+      - ToAccountID
+      name: Account1
+      resource: Account
+    type: Transfer
+    user_key: TransactionID
+settings:
+  HomeJS: http://localhost:5656/admin-app/home.js
+  max_list_columns: 8
