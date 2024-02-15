@@ -1,0 +1,42 @@
+version: "3.5"
+
+# see ./azure-deploy.sh for notes on how to run
+
+services:
+
+    api-logic-server:
+        image: apilogicserver/banking2
+        environment:
+          - APILOGICPROJECT_VERBOSE=true
+          - SECURITY_ENABLED=true
+          - APILOGICPROJECT_CLIENT_URI=//banking2.azurewebsites.net
+          # - APILOGICPROJECT_HTTP_SCHEME=https
+          - PYTHONPATH=/app/ApiLogicProject 
+          ## TODO: verify Database uri's here, 
+          # - APILOGICPROJECT_SQLALCHEMY_DATABASE_URI=postgresql://postgres:p@postgresql-service/banking
+          # - APILOGICPROJECT_SQLALCHEMY_DATABASE_URI_AUTHENTICATION=postgresql://postgres:p@postgresql-service/authdb
+          - APILOGICPROJECT_SQLALCHEMY_DATABASE_URI=mysql+pymysql://root:p@mysql-service:3306/banking
+          - APILOGICPROJECT_SQLALCHEMY_DATABASE_URI_AUTHENTICATION=mysql+pymysql://root:p@mysql-service:3306/authdb
+        expose:
+           - 5656
+        ports:
+            - 5656:5656
+        volumes:
+            - ${WEBAPP_STORAGE_HOME}/classicmodels:/app
+        # container should start automatically - command:  api_logic_server_run.py
+        working_dir: /home/api_logic_project
+
+    mysql-service:
+        # TODO - change to your own database
+        image: apilogicserver/mysql8.0:latest
+        restart: always
+        environment:
+            - MYSQL_USER=root
+            - MYSQL_PASSWORD=p
+            - MYSQL_ROOT_PASSWORD=p
+        ports:
+            # <Port exposed> : <MySQL Port running inside container>
+            - '3306:3306'
+        expose:
+            # Opens port 3306 on the container
+            - '3306'

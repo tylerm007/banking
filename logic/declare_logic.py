@@ -5,6 +5,7 @@ from logic_bank.extensions.rule_extensions import RuleExtension
 from logic_bank.logic_bank import Rule
 from database import models
 import api.system.opt_locking.opt_locking as opt_locking
+from security.system.authorization import Grant
 import logging
 from datetime import date
 import safrs
@@ -13,8 +14,7 @@ import requests
 
 app_logger = logging.getLogger(__name__)
 
-db = safrs.DB         # Use the safrs.DB, not db!
-session = db.session  # sqlalchemy.orm.scoping.scoped_session
+declare_logic_message = "ALERT:  *** No Rules Yet ***"  # printed in api_logic_server.py
 
 class DotDict(dict):
     """ dot.notation access to dictionary attributes """
@@ -42,6 +42,7 @@ def declare_logic():
         Args:
             logic_row (LogicRow): from LogicBank - old/new row, state
         """
+        Grant.process_updates(logic_row=logic_row)
         if logic_row.is_updated() and logic_row.old_row is not None and logic_row.nest_level == 0:
             opt_locking.opt_lock_patch(logic_row=logic_row)
         enable_creation_stamping = False  # CreatedOn time stamping

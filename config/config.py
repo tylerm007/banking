@@ -6,10 +6,15 @@ import typing
 from dotenv import load_dotenv
 import logging
 from enum import Enum
+import socket
+import json
 
-#  for complete flask_sqlachemy config parameters and session handling,
-#  read: file flask_sqlalchemy/__init__.py AND flask/config.py
 '''
+#als: configuration settings
+
+For complete flask_sqlachemy config parameters and session handling,
+  see: file flask_sqlalchemy/__init__.py AND flask/config.py
+
 app.config.setdefault('SQLALCHEMY_DATABASE_URI', 'sqlite:///:memory:')
 app.config.setdefault('SQLALCHEMY_BINDS', None)
 app.config.setdefault('SQLALCHEMY_NATIVE_UNICODE', None)
@@ -112,9 +117,8 @@ class Config:
     if SECURITY_ENABLED:
         from security.authentication_provider.sql.auth_provider import Authentication_Provider
         SECURITY_PROVIDER = Authentication_Provider
-        app_logger.debug(f'config.py - security enabled')
-    else:
-        app_logger.info(f'config.py - security disabled')
+
+    app_logger.info(f'config.py - security {SECURITY_ENABLED}')
 
     # Begin Multi-Database URLs (from ApiLogicServer add-db...)
 
@@ -123,6 +127,11 @@ class Config:
     # SQLALCHEMY_ECHO = environ.get("SQLALCHEMY_ECHO")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PROPAGATE_EXCEPTIONS = False
+
+    KAFKA_PRODUCER = '{"bootstrap.servers": "localhost:9092"}'  #  , "client.id": "aaa.b.c.d"}'
+    KAFKA_PRODUCER = None  # comment out to enable Kafka producer
+    KAFKA_CONSUMER = '{"bootstrap.servers": "localhost:9092", "group.id": "als-default-group1"}'
+    KAFKA_CONSUMER = None  # comment out to enable Kafka consumer
 
     OPT_LOCKING = "optional"
     if os.getenv('OPT_LOCKING'):  # e.g. export OPT_LOCKING=required
@@ -147,6 +156,10 @@ class Args():
     Set from created values in Config, overwritten by cli args, then APILOGICPROJECT_ env variables.
 
     This class provides **typed** access.
+
+    eg.
+
+        Args.instance.kafka_connect  # note you need to access the instance
     """
 
     values = None
@@ -180,6 +193,8 @@ class Args():
         self.port = Config.CREATED_PORT
         self.swagger_port = Config.CREATED_PORT
         self.http_scheme = Config.CREATED_HTTP_SCHEME
+        self.kafka_producer = Config.KAFKA_PRODUCER
+        self.kafka_consumer = Config.KAFKA_CONSUMER
 
         self.verbose = False
         self.create_and_run = False
@@ -335,6 +350,29 @@ class Args():
     def client_uri(self, a):
         self.flask_app.config["CLIENT_URI"] = a
 
+    @property
+    def kafka_producer(self) -> dict:
+        """ kafka connect string """
+        if "KAFKA_PRODUCER" in self.flask_app.config:
+            if self.flask_app.config["KAFKA_PRODUCER"] is not None:
+                return json.loads(self.flask_app.config["KAFKA_PRODUCER"])
+        return None
+    
+    @kafka_producer.setter
+    def kafka_producer(self, a: str):
+        self.flask_app.config["KAFKA_PRODUCER"] = a
+
+    @property
+    def kafka_consumer(self) -> dict:
+        """ kafka enable consumer """
+        if "KAFKA_CONSUMER" in self.flask_app.config:
+            if self.flask_app.config["KAFKA_CONSUMER"] is not None:
+                return json.loads(self.flask_app.config["KAFKA_CONSUMER"])
+        return None
+    
+    @kafka_consumer.setter
+    def kafka_consumer(self, a: str):
+        self.flask_app.config["KAFKA_CONSUMER"] = a
 
     def __str__(self) -> str:
         rtn =  f'.. flask_host: {self.flask_host}, port: {self.port}, \n'\

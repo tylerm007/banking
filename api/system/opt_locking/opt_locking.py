@@ -15,8 +15,8 @@ from safrs.util import classproperty
 from safrs.errors import JsonapiError
 from http import HTTPStatus
 
-from config import OptLocking
-from config import Config
+from config.config import OptLocking
+from config.config import Args as args
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def opt_locking_setup(session):
 def checksum(list_arg: list) -> str:
     """
     Args:
-        list_arg (list): list of (rows') attribute values
+        list_arg (list): list of (rows') attribute values (tuple-ize and call hash)
 
     Returns:
         int: hash(list values), with special handling for None
@@ -49,7 +49,21 @@ def checksum(list_arg: list) -> str:
             if each_entry is None:
                 real_tuple.append(13)
             else:
-                real_tuple.append(each_entry)
+                if isinstance(each_entry, list):
+                    list_hash = checksum(each_entry)
+                    real_tuple.append(list_hash)
+                elif isinstance(each_entry, set):
+                    list_from_set = list(each_entry)
+                    list_hash = checksum(list_from_set)
+                    real_tuple.append(list_hash)
+                elif isinstance(each_entry, dict):
+                    dict_tuple = []
+                    for each_key, each_value in each_entry.items():
+                        dict_tuple.append(each_value)
+                    dict_hash = checksum(dict_tuple)
+                    real_tuple.append(dict_hash)
+                else:
+                    real_tuple.append(each_entry)
     result = hash(tuple(real_tuple))
     # print(f'checksum[{result}] from row: {list_arg})')
     result = str(result)  # maxint 870744036720833075 https://stackoverflow.com/questions/47188449/json-max-int-number
@@ -126,14 +140,16 @@ def opt_lock_patch(logic_row: LogicRow):
         ALSError: "Optimistic Locking error - required CheckSum not present"
     """
     logger.debug(f'Opt Lock Patch')
-    if hasattr(logic_row.row, "S_CheckSum"):
+    if args.instance.opt_locking == OptLocking.IGNORED.value:
+        pass
+    elif hasattr(logic_row.row, "S_CheckSum"):
         as_read_checksum = logic_row.row.S_CheckSum
         old_row_checksum = checksum_old_row(logic_row)
         if as_read_checksum != old_row_checksum:
             logger.info(f"optimistic lock failure - as-read vs current: {as_read_checksum} vs {old_row_checksum}")
             raise ALSError(message="Sorry, row altered by another user - please note changes, cancel and retry")
     else:
-        if Config.OPT_LOCKING == OptLocking.OPTIONAL.value:
+        if args.instance.opt_locking == OptLocking.OPTIONAL.value:
             logger.debug(f'No CheckSum -- ok, configured as optional')
         else:
             raise ALSError("Optimistic Locking error - required CheckSum not present")

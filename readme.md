@@ -1,3 +1,15 @@
+# Quick Start
+
+For **VSCode** Users, you are ready to run:
+1. `Press F5 to Run` (your venv is defaulted)  
+2. Disable the startup message by renaming `.vscode/tasks.json`
+
+For **other IDEs,** please follow the [Setup and Run](#1-setup-and-run) procedure, below.
+
+> Tip: create the sample app for customization examples: `ApiLogicServer create --project_name=ApiLogicProject --db_url=`
+
+&nbsp;
+
 # Using this readme
 
 This readme contains the following sections:
@@ -16,18 +28,20 @@ This readme contains the following sections:
 
 # 1. Setup and Run
 
-To run your project, the system requires various runtime systems for data access, api, and logic.  These are included with API Logic Server ([architecture doc here](https://apilogicserver.github.io/Docs/Architecture-What-Is/)).  So, to run your project ([instructions here](#setup-instructions)):
+To run your project, the system requires various runtime systems for data access, api, and logic.  These are included with API Logic Server ([architecture doc here](https://apilogicserver.github.io/Docs/Architecture-What-Is/)).  
 
-1.  __Establish your Python Environment__ to activate these runtime systems
-2. __Run__
+So, to run your project:
 
-Setup your Python environment, according to whether you did a *local install*, or *Docker*.  Choose the appropriate section, then run.
+*  __1.1 Establish your Python Environment__ 
+    * Docker or VSCode - [nothing to do](#docker-or-vscode---nothing-to-do)
+    * Otherwise, [Establish Your Python Environment](#establish-your-python-environment---other-environments) to activate these runtime systems
+* __[1.2 Run](#12-run)__
 
 &nbsp;
 
-## Establish Your Python Environment - Local Install
+## 1.1 Establish Your Python Environment - Other Environments
 
-You `requirements.txt` has already been created, so...
+Your `requirements.txt` has already been created, so...
 
 ```bash title="Install API Logic Server in a Virtual Environment"
 python -m venv venv                        # may require python3 -m venv venv
@@ -41,31 +55,39 @@ Notes:
 
 * If using SqlServer, install `pyodbc`.  Not required for docker-based projects.  For local installs, see the [Quick Start](https://apilogicserver.github.io/Docs/Install-pyodbc/).
 
-* If you are creating multiple projects, you may wish to use a [Shared venv](https://apilogicserver.github.io/Docs/Project-Env/).
+&nbsp;
+
+#### Docker or VSCode - nothing to do
+
+Nothing to do here:
+
+* **VSCode:** projects automatically use installed API Logic Server `venv`, so this step is ***not required*** until you want to create a local `venv` for additional packages.
+
+* **Docker:** Your runtime systems are part of Dev Container, which you probably activated when you [opened the project](https://apilogicserver.github.io/Docs/IDE-Execute/).  
+
+    * If you did not accept the "Open in Container" option when you started VSCode, use __View > Command Palette > Remote-Containers: Reopen in Container__.
 
 &nbsp;
 
-## Establish Your Python Environment - Docker
-
-Your runtime systems are part of Dev Container, which you probably activated when you [opened the project](https://apilogicserver.github.io/Docs/IDE-Execute/).  
- * If you did not accept the "Open in Container" option when you started VSCode, use __View > Command Palette > Remote-Containers: Reopen in Container__.
-
 &nbsp;
 
-## Run
+## 1.2 Run
 
-To run your project
+The `ApiLogicServer create` command creates Run Configurations for PyCharm and VSCode:
+
+* For PyCharm, press Ctl-D
+* For VSCode, &nbsp;press F5:
 
 ![Start Project](https://github.com/ApiLogicServer/Docs/blob/main/docs/images/tutorial/2-apilogicproject-nutshell.png?raw=true)
 
 As shown above:
 
-1. Use the pre-supplied Run Configuration; use either:
-    * `**ApiLogicServer - No Security (e.g., for behave tests** to run *with security* (recommended initially)
-    * `**ApiLogicServer** to run [with security](https://apilogicserver.github.io/Docs/Security-Swagger/)
+1. Use the pre-supplied Run Configurations; use either...
+    * `ApiLogicServer` to run [with security](https://apilogicserver.github.io/Docs/Security-Swagger/)
+    * `ApiLogicServer - No Security` (simplifies use of Swagger)
 2. Click the url in the console to start the Admin App
-    * Use it to explore your data (shown below)
-    * And your API (via Swagger)
+    * Use it to explore your **data** (shown below)
+    * And your **API** (via Swagger)
 
 ![Admin App](https://github.com/ApiLogicServer/Docs/blob/main/docs/images/ui-admin/run-admin-app.png?raw=true)
 
@@ -83,13 +105,18 @@ Since API Logic Server creates working software (UI, API), you can do this after
 
 Your project is ready to run, but it's likely you'll want to customize it - declare logic, new endpoints, etc.
 
-The ___Key Customization Files___ listed in the table below are created as stubs, intended for you to add customizations that extend
-the created API, Logic and Web App.
+>> Tip: in particular, use the sample app to explore the value of ___declarative logic and security.___  Unique to API Logic Server, this is critical to unlocking the full value of API Logic Server.
+
+The ___Key Customization Files___ listed in the table below are created as stubs, intended for you to add customizations that extend the created API, Logic and Web App.
 
 * Since they are separate files, the project can be
 [rebuilt](https://apilogicserver.github.io/Docs/Project-Rebuild/) (e.g., synchronized with a revised schema), preserving your customizations.
 
-Please see the `nw` sample for examples of typical customizations.  You can open it in GitHub (use Shift + "." to view in project mode) - [click here](https://github.com/ApiLogicServer/demo).
+To explore customization, see the `nw` sample for examples of typical customizations.  You can open it in GitHub (use Shift + "." to view in project mode) - [click here](https://github.com/ApiLogicServer/demo), or create it locally (`ApiLogicServer create` - accept defaults).
+
+To make customizations easy to explore, **search for:**
+* `#als` will reveal key customization examples
+* `Your Code Goes Here` to find key files to customize, summarized below:
 
 | Directory | Usage                         | Key Customization File             | Typical Customization                                                                 |
 |:-------------- |:------------------------------|:-----------------------------------|:--------------------------------------------------------------------------------------|
@@ -98,7 +125,10 @@ Please see the `nw` sample for examples of typical customizations.  You can open
 | ```database``` | SQLAlchemy Data Model Classes | ```database/customize_models.py``` | Add derived attributes, and relationships missing in the schema                       |
 | ```logic``` | **Transactional Logic**<br>spreadsheet-like rules   | ```logic/declare_logic.py```       | Declare multi-table derivations, constraints, and Python events such as send mail / messages |
 | ```security``` | Authentication, Authorization   | ```security/declare_security.py```          | Control login, role-based row access         |
+| ```integration``` | Consume Kafka Messages             | ```integration/kafka/kafka_consumer.py```          |  [Application Integration](https://apilogicserver.github.io/Docs/Sample-Integration/)                                          |
 | ```tests``` | Behave Test Suite              | ```tests/api_logic_server_behave/features```          | Declare and implement [Behave Tests](https://apilogicserver.github.io/Docs/Behave/)                                          |
+
+> Note: API Logic Server CLI provides commands you can use to ugrade your project, e.g., to add security.  Discover the CLI commands with `ApiLogicServer`.
 
 &nbsp;
 
@@ -115,9 +145,9 @@ For information on Managing API Logic Projects, [click here](https://apilogicser
 
 | About                    | Info                               |
 |:-------------------------|:-----------------------------------|
-| Created                  | August 29, 2023 17:12:14                      |
-| API Logic Server Version | 09.02.21           |
-| Created in directory     | b |
+| Created                  | February 15, 2024 09:33:45                      |
+| API Logic Server Version | 10.02.04           |
+| Created in directory     | banking2 |
 | API Name                 | api          |
 | Execution begins with    | `api_logic_server_run.py`          |
 
@@ -188,3 +218,9 @@ This generated project also contains a React Admin app:
 * Multi-table - master / details (with tab sheets)
 * Intelligent layout - favorite fields first, predictive joins, etc
 * Logic Aware - updates are monitored by business logic
+
+&nbsp;
+
+### Python Tips
+
+If you are new to Python, check out [these tips](https://apilogicserver.github.io/Docs/Tech-Python/).

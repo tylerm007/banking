@@ -5,6 +5,9 @@ from flask import request, jsonify
 from safrs import jsonapi_rpc
 from database import models
 import json
+from sqlalchemy import text, select, update, insert, delete
+from sqlalchemy.orm import load_only
+import sqlalchemy
 import requests
 from datetime import date
 
@@ -12,6 +15,10 @@ from datetime import date
 # separate from expose_api_models.py, to simplify merge if project recreated
 
 app_logger = logging.getLogger(__name__)
+
+db = safrs.DB 
+session = db.session 
+
 class DotDict(dict):
     """ dot.notation access to dictionary attributes """
     # thanks: https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary/28463329
@@ -60,6 +67,150 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
 
         os.kill(os.getpid(), signal.SIGINT)
         return jsonify({ "success": True, "message": "Server is shutting down..." })
+
+    api_map = {
+        "employees": models.Employee,
+        "customers": models.Customer,
+        "branches": models.Branch,
+        "accounts": models.Account,
+        "transaction": models.Transaction
+    }
+    #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
+    @app.route("/services/rest/<path:path>", methods=['POST','PUT','DELETE'])
+    def api_search(path):
+        s = path.split("/")
+        clz_name = s[0]
+        clz_type = s[1] #[2] TODO customerType search advancedSearch (photo)
+        api_clz = api_map.get(clz_name)
+        payload = json.loads(request.data)
+        filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
+        method = request.method
+        rows = []
+        if method == 'PUT':
+            stmt = update(api_clz).where(text(filter)).values(data)
+            
+        if method == 'DELETE':
+            stmt = delete(api_clz).where(text(filter))
+            
+        if method == 'POST':
+            if data != None:
+                #this is an insert
+                stmt = insert(api_clz).values(data)
+                
+            else:
+                #GET (sent as POST)
+                rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
+                return jsonify(rows)
+                
+        session.execute(stmt)
+        session.commit()
+        return jsonify({f"{method}":True})
+
+
+    def get_rows(api_clz, filter, order_by, columns, pagesize, offset):
+        # New Style
+        stmt = select(api_clz)
+        if filter:
+            stmt = stmt.where(text(filter))
+        if order_by:
+            stmt = stmt.order_by(parseOrderBy(order_by))
+        # .options(load_only(list of columns))\ #TODO
+        stmt = stmt.limit(pagesize).offset(offset)
+        
+        return stmt
+    
+    def get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset):
+        #Old Style
+        rows = []
+        results = session.query(api_clz) # or list of columns?
+                    
+        if columns:
+            #stmt = select(api_clz).options(load_only(Book.title, Book.summary))
+            pass #TODO
+        
+        if orderBy:
+            results = results.order_by(text(parseOrderBy(orderBy)))
+
+        if filter:
+            results = results.filter(text(filter)) 
+            
+        results = results.limit(pagesize) \
+            .offset(offset) 
+        
+        for row in results.all():
+            rows.append(row.to_dict())
+        
+        return rows
+                    
+    def parsePayload(payload:str):
+        """
+            employee/advancedSearch
+            {"filter":{},"columns":["EMPLOYEEID","EMPLOYEETYPEID","EMPLOYEENAME","EMPLOYEESURNAME","EMPLOYEEADDRESS","EMPLOYEESTARTDATE","EMPLOYEEEMAIL","OFFICEID","EMPLOYEEPHOTO","EMPLOYEEPHONE"],"sqltypes":{},"offset":0,"pageSize":16,"orderBy":[]}
+            customers/customer/advancedSearch
+            {"filter":{},"columns":["CUSTOMERID","NAME","SURNAME","ADDRESS","STARTDATE","EMAIL"],"sqltypes":{"STARTDATE":93},"offset":0,"pageSize":25,"orderBy":[{"columnName":"SURNAME","ascendent":true}]}
+            
+        """
+        filter:dict = parseFilter(payload.get('filter', {}))
+        columns:list = payload.get('columns') or []
+        sqltypes = payload.get('sqltypes') or None
+        offset:int = payload.get('offset') or 0
+        pagesize:int = payload.get('pageSize') or 25
+        orderBy:list = payload.get('orderBy') or []
+        data = payload.get('data',None)
+        
+        print(filter, columns, sqltypes, offset, pagesize, orderBy, data)
+        return filter, columns, sqltypes, offset, pagesize, orderBy, data
+    
+    def parseFilter(filter:dict) -> str:
+        # {filter":{"@basic_expression":{"lop":"BALANCE","op":"<=","rop":35000}}
+        filter_result = ""
+        a = ""
+        for f in filter:
+            if f == '@basic_expression':
+                continue
+            filter_result += f"{a} {f} = {filter[f]}"
+            a = " and "
+        return None if filter_result == "" else filter_result
+        
+    def parseData(data:dict = None) -> str:
+        # convert dict to str
+        result = ""
+        join = ""
+        if data:
+            for d in data:
+                result += f'{join}{d}="{data[d]}"'
+                join = ","
+        return result
+    
+    def parseOrderBy(orderBy) -> str:
+        #[{'columnName': 'SURNAME', 'ascendent': True}]
+        result = ""
+        if orderBy and len(orderBy) > 0:
+            result = f"{orderBy[0]['columnName']}" #TODO for desc
+        return result
+    
+def rows_to_dict(result: any) -> list:
+    """
+    Converts SQLAlchemy result (mapped or raw) to dict array of un-nested rows
+
+    Args:
+        result (object): list of serializable objects (e.g., dict)
+
+    Returns:
+        list of rows as dicts
+    """
+    rows = []
+    for each_row in result:
+        row_as_dict = {}
+        print(f'type(each_row): {type(each_row)}')
+        if isinstance (each_row, sqlalchemy.engine.row.Row):  # raw sql, eg, sample catsql
+            key_to_index = each_row._key_to_index             # note: SQLAlchemy 2 specific
+            for name, value in key_to_index.items():
+                row_as_dict[name] = each_row[value]
+        else:
+            row_as_dict = each_row.to_dict()                  # safrs helper
+        rows.append(row_as_dict)
+    return rows
 
 class TransferFunds(safrs.JABase):
     """

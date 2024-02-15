@@ -1,17 +1,17 @@
 about:
-  date: August 29, 2023 17:12:14
+  date: February 15, 2024 09:33:46
   recent_changes: works with modified safrs-react-admin
   version: 0.0.0
 api_root: '{http_type}://{swagger_host}:{port}/{api}'
 authentication:
   endpoint: '{http_type}://{swagger_host}:{port}/api/auth/login'
 info:
-  number_relationships: 4
-  number_tables: 4
+  number_relationships: 6
+  number_tables: 7
 resources:
   Account:
     attributes:
-    - label: ' Account I D*'
+    - label: ' Account ID*'
       name: AccountID
       search: true
       sort: true
@@ -28,12 +28,12 @@ resources:
     - direction: tomany
       fks:
       - FromAccountID
-      name: TransferList
+      name: TransferFrom
       resource: Transfer
     - direction: tomany
       fks:
       - ToAccountID
-      name: TransferList1
+      name: TransferTo
       resource: Transfer
     - direction: toone
       fks:
@@ -42,12 +42,45 @@ resources:
       resource: Customer
     type: Account
     user_key: AccountID
+  AccountType:
+    attributes:
+    - label: ' Name*'
+      name: Name
+      required: true
+      search: true
+      sort: true
+    type: AccountType
+    user_key: Name
+  Branch:
+    attributes:
+    - label: ' Name*'
+      name: Name
+      search: true
+      sort: true
+    - name: Office
+    - name: Address
+    - name: OpenDate
+    - name: BranchID
+    tab_groups:
+    - direction: tomany
+      fks:
+      - BranchID
+      name: CustomerList
+      resource: Customer
+    - direction: tomany
+      fks:
+      - Branch
+      name: EmployeeList
+      resource: Employee
+    type: Branch
+    user_key: Name
   Customer:
     attributes:
     - label: ' First Name*'
       name: FirstName
       search: true
       sort: true
+    - name: BranchID
     - name: LastName
     - name: Email
     - name: PhoneNumber
@@ -66,8 +99,36 @@ resources:
       - CustomerID
       name: AccountList
       resource: Account
+    - direction: toone
+      fks:
+      - BranchID
+      name: Branch
+      resource: Branch
     type: Customer
     user_key: FirstName
+  Employee:
+    attributes:
+    - label: ' Last Name*'
+      name: LastName
+      required: true
+      search: true
+      sort: true
+    - name: Branch
+    - name: FirstName
+      required: true
+    - name: BirthDate
+    - name: Photo
+      type: Image
+    - name: Notes
+    - name: EmployeeID
+    tab_groups:
+    - direction: toone
+      fks:
+      - Branch
+      name: Branch1
+      resource: Branch
+    type: Employee
+    user_key: LastName
   Transaction:
     attributes:
     - label: ' Transaction I D*'

@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DECIMAL, Date, DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DECIMAL, Date, DateTime, Enum, ForeignKey, Integer, String, Text, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 # Alter this file per your database maintenance policy
 #    See https://apilogicserver.github.io/Docs/Project-Rebuild/#rebuilding
 #
-# Created:  August 29, 2023 17:12:14
+# Created:  February 15, 2024 09:33:46
 # Database: mysql+pymysql://root:password@127.0.0.1:3308/banking
 # Dialect:  mysql
 #
@@ -37,6 +37,61 @@ from sqlalchemy.dialects.mysql import *
 
 
 
+class AccountType(SAFRSBase, Base):
+    __tablename__ = 'AccountType'
+    _s_collection_name = 'AccountType'  # type: ignore
+    __bind_key__ = 'None'
+
+    Name = Column(String(25), primary_key=True)
+    allow_client_generated_ids = True
+
+    # parent relationships (access parent)
+
+    # child relationships (access children)
+
+    @jsonapi_attr
+    def _check_sum_(self):  # type: ignore [no-redef]
+        return None if isinstance(self, flask_sqlalchemy.model.DefaultMeta) \
+            else self._check_sum_property if hasattr(self,"_check_sum_property") \
+                else None  # property does not exist during initialization
+
+    @_check_sum_.setter
+    def _check_sum_(self, value):  # type: ignore [no-redef]
+        self._check_sum_property = value
+
+    S_CheckSum = _check_sum_
+
+
+class Branch(SAFRSBase, Base):
+    __tablename__ = 'Branch'
+    _s_collection_name = 'Branch'  # type: ignore
+    __bind_key__ = 'None'
+
+    BranchID = Column(Integer, primary_key=True)
+    Name = Column(String(25))
+    Office = Column(String(15))
+    Address = Column(String(35))
+    OpenDate = Column(DateTime)
+
+    # parent relationships (access parent)
+
+    # child relationships (access children)
+    CustomerList : Mapped[List["Customer"]] = relationship(back_populates="Branch")
+    EmployeeList : Mapped[List["Employee"]] = relationship(back_populates="Branch1")
+
+    @jsonapi_attr
+    def _check_sum_(self):  # type: ignore [no-redef]
+        return None if isinstance(self, flask_sqlalchemy.model.DefaultMeta) \
+            else self._check_sum_property if hasattr(self,"_check_sum_property") \
+                else None  # property does not exist during initialization
+
+    @_check_sum_.setter
+    def _check_sum_(self, value):  # type: ignore [no-redef]
+        self._check_sum_property = value
+
+    S_CheckSum = _check_sum_
+
+
 class Customer(SAFRSBase, Base):
     __tablename__ = 'Customer'
     _s_collection_name = 'Customer'  # type: ignore
@@ -52,12 +107,45 @@ class Customer(SAFRSBase, Base):
     RegistrationDate = Column(DateTime)
     UserName = Column(String(64), nullable=False)
     Password = Column(String(64), nullable=False)
+    BranchID = Column(ForeignKey('Branch.BranchID'), index=True)
     allow_client_generated_ids = True
 
     # parent relationships (access parent)
+    Branch : Mapped["Branch"] = relationship(back_populates=("CustomerList"))
 
     # child relationships (access children)
     AccountList : Mapped[List["Account"]] = relationship(back_populates="Customer")
+
+    @jsonapi_attr
+    def _check_sum_(self):  # type: ignore [no-redef]
+        return None if isinstance(self, flask_sqlalchemy.model.DefaultMeta) \
+            else self._check_sum_property if hasattr(self,"_check_sum_property") \
+                else None  # property does not exist during initialization
+
+    @_check_sum_.setter
+    def _check_sum_(self, value):  # type: ignore [no-redef]
+        self._check_sum_property = value
+
+    S_CheckSum = _check_sum_
+
+
+class Employee(SAFRSBase, Base):
+    __tablename__ = 'Employees'
+    _s_collection_name = 'Employee'  # type: ignore
+    __bind_key__ = 'None'
+
+    EmployeeID = Column(Integer, primary_key=True)
+    LastName = Column(String(15), nullable=False)
+    FirstName = Column(String(15), nullable=False)
+    Branch = Column(ForeignKey('Branch.BranchID'), server_default=text("'1'"), index=True)
+    BirthDate = Column(DateTime)
+    Photo = Column(String(25))
+    Notes = Column(String(1024))
+
+    # parent relationships (access parent)
+    Branch1 : Mapped["Branch"] = relationship(back_populates=("EmployeeList"))
+
+    # child relationships (access children)
 
     @jsonapi_attr
     def _check_sum_(self):  # type: ignore [no-redef]
@@ -89,8 +177,8 @@ class Account(SAFRSBase, Base):
 
     # child relationships (access children)
     TransactionList : Mapped[List["Transaction"]] = relationship(back_populates="Account")
-    TransferList : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates="Account")
-    TransferList1 : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates="Account1")
+    TransferFrom : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates="Account")
+    TransferTo : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates="Account1")
 
     @jsonapi_attr
     def _check_sum_(self):  # type: ignore [no-redef]
@@ -151,8 +239,8 @@ class Transfer(SAFRSBase, Base):
     allow_client_generated_ids = True
 
     # parent relationships (access parent)
-    Account : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferList"))
-    Account1 : Mapped["Account"] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates=("TransferList1"))
+    Account : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferFrom"))
+    Account1 : Mapped["Account"] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates=("TransferTo"))
 
     # child relationships (access children)
 

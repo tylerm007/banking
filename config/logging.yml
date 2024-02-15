@@ -81,13 +81,18 @@ loggers:
         handlers: [console]
         propagate: no
 
+    integration.kafka:   
+        level: DEBUG
+        handlers: [console]
+        propagate: no
+
     security.system.authentication:   
 #        level: DEBUG
         handlers: [console]
         propagate: no
 
     security.system.authorization:   
-#        level: DEBUG
+        level: INFO
         handlers: [console]
         propagate: no
 

@@ -13,6 +13,8 @@
     "[Log]": {
         "editor.wordWrap": "off"
     },
+    "debug.console.wordWrap": false,    
+    "python.defaultInterpreterPath": "/Users/tylerband/dev/ApiLogicServer/venv/bin/python3.11",
     "workbench.editorAssociations": {
         "*.md": "vscode.markdown.preview.editor"
     }

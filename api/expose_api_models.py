@@ -25,6 +25,9 @@ def expose_models(api, method_decorators = []):
     """
     api.expose_object(database.models.Account, method_decorators= method_decorators)
     api.expose_object(database.models.Customer, method_decorators= method_decorators)
+    api.expose_object(database.models.AccountType, method_decorators= method_decorators)
+    api.expose_object(database.models.Branch, method_decorators= method_decorators)
+    api.expose_object(database.models.Employee, method_decorators= method_decorators)
     api.expose_object(database.models.Transaction, method_decorators= method_decorators)
     api.expose_object(database.models.Transfer, method_decorators= method_decorators)
     return api
