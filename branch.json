@@ -1,0 +1,58 @@
+{
+    "data": [
+        {
+            "OpenDate": 733982400000,
+            "Address": "Priority House 5 Iris Road Bedfordview Gauteng",
+            "Office": "0003",
+            "Name": "Bedfordview Pri15641456165v BNKG Suite sc."
+        },
+        {
+            "OpenDate": 766015200000,
+            "Address": "President Swart Street Bultfontein",
+            "Office": "0004",
+            "Name": "Bultfontein Service Centre"
+        },
+        {
+            "OpenDate": 733968000000,
+            "Address": "Shop 69 Westridge Park sc.",
+            "Office": "0070",
+            "Name": "Westridge Park Service Centre"
+        },
+        {
+            "OpenDate": 733968000000,
+            "Address": "Centro City 11 Trump st.",
+            "Office": "0101",
+            "Name": "Jozi "
+        },
+        {
+            "OpenDate": 797378400000,
+            "Address": "Sta. María de la Cabeza, esq. Dr. Calero 2822",
+            "Office": "0102",
+            "Name": "Majadahonda"
+        },
+        {
+            "OpenDate": 828662400000,
+            "Address": "Pl. Mayor, 10 (28850) Torrejón Ardoz",
+            "Office": "0103",
+            "Name": "Torrejón"
+        },
+        {
+            "OpenDate": 1675825200000,
+            "Address": "RUA ITAQUARI 180 apt 1302",
+            "Office": "123124",
+            "Name": "test"
+        },
+        {
+            "OpenDate": 1480550400000,
+            "Address": "Edificio Citexvi, Fonte das Abelleiras, s/n · Local 27, 36310 Vigo, Pontevedra",
+            "Office": "1471",
+            "Name": "ImatiaBank Innovation"
+        },
+        {
+            "OpenDate": 1675897200000,
+            "Address": "Plaza España",
+            "Office": "3200",
+            "Name": "Pepesfg"
+        }
+    ]
+}

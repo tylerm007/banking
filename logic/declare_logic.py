@@ -15,7 +15,8 @@ import requests
 app_logger = logging.getLogger(__name__)
 
 declare_logic_message = "ALERT:  *** No Rules Yet ***"  # printed in api_logic_server.py
-
+db = safrs.DB 
+session = db.session 
 class DotDict(dict):
     """ dot.notation access to dictionary attributes """
     # thanks: https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary/28463329
@@ -42,15 +43,18 @@ def declare_logic():
         Args:
             logic_row (LogicRow): from LogicBank - old/new row, state
         """
+        #This will enable declarative role based access 
         Grant.process_updates(logic_row=logic_row)
+        
         if logic_row.is_updated() and logic_row.old_row is not None and logic_row.nest_level == 0:
             opt_locking.opt_lock_patch(logic_row=logic_row)
-        enable_creation_stamping = False  # CreatedOn time stamping
+        
+        enable_creation_stamping = True  # OpenDate time stamping
         if enable_creation_stamping:
             row = logic_row.row
-            if logic_row.ins_upd_dlt == "ins" and hasattr(row, "CreatedOn"):
-                row.CreatedOn = datetime.datetime.now()
-                logic_row.log("early_row_event_all_classes - handle_all sets 'Created_on"'')
+            if logic_row.ins_upd_dlt == "ins" and hasattr(row, "OpenDate"):
+                row.OpenDate = datetime.datetime.now()
+                logic_row.log("early_row_event_all_classes - handle_all sets 'OpenDate"'')
                 
     def fn_overdraft(row=models.Account, old_row=models.Account, logic_row=LogicRow):
         if row.AcctBalance  <0: #  __lt__(0):
@@ -104,10 +108,11 @@ def declare_logic():
             # #Not Enough Funds - if Loan exists move to cover Overdraft (transfer Loan to from_acct)
             transfer = models.Transfer()
             transfer.FromAccountID = 3000 # add link account to checking and savings
-            transfer.ToAccountID = fromAcctId
+            transfer.ToAccountID = toAcctId
             transfer.Amount = amount - from_account.AcctBalance 
             transfer.TransactionDate = date.today()
-            session.add(transfer)
+            transfer.TransactionID = row.TransactionID
+            #session.add(transfer)
             
         from_trans = models.Transaction()
         from_trans.TransactionID = len(transactions) + 2
@@ -133,7 +138,7 @@ def declare_logic():
         session.add(to_trans)
         
         #session.commit()
-        print("Funds transferred successfully!")
+        logic_row.log("Funds transferred successfully!")
     
     Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
     Rule.early_row_event(on_class=models.Customer, calling=fn_default_customer)

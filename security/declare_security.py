@@ -1,4 +1,4 @@
-from security.system.authorization import Grant, Security
+from security.system.authorization import Grant, Security, DefaultRolePermission, GlobalFilter
 import logging
 from database import models
 import safrs
@@ -24,3 +24,21 @@ See [documentation](https://apilogicserver.github.io/Docs/Security-Overview/)
 
 Security is invoked on server start (api_logic_server_run), per activation in `config.py`
 """
+class Roles():
+    manager = "manager"
+    teller = "teller"
+    customer = "customer"
+    read_only = "readonly"
+    admin = "admin"
+    
+GlobalFilter(global_filter_attribute_name="CustomerID",roles_not_filtered=["admin"], filter= '{entity_class}.CustomerId = Security.current_user().CustomerID')
+
+DefaultRolePermission(to_role=Roles.admin, can_read=True, can_insert=True,can_update=True, can_delete=True)
+DefaultRolePermission(to_role=Roles.manager, can_read=True, can_insert=True,can_update=True, can_delete=False)
+DefaultRolePermission(to_role=Roles.teller, can_read=True, can_insert=True,can_update=True, can_delete=False)
+DefaultRolePermission(to_role=Roles.customer, can_read=True, can_insert=True,can_update=True, can_delete=False)
+DefaultRolePermission(to_role=Roles.read_only, can_read=True, can_insert=False,can_update=False, can_delete=False)
+
+Grant(on_entity=models.Customer, to_role=Roles.customer, filter=lambda row: Security.current_user().CustomerID )
+Grant(on_entity=models.Account, to_role=Roles.customer)
+Grant(on_entity=models.Transaction, to_role=Roles.customer)

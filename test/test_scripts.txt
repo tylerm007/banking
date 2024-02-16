@@ -7,10 +7,10 @@ curl -X POST http://localhost:5656/services/rest/customers/customer/advancedsear
 curl -X POST http://localhost:5656/services/rest/accounts/account -d  '{"filter":{"AccountID": 1000},"columns":["Customer","AccountType","AcctBalance"],"sqltypes":{"OpenDate":93},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
 #INSERT
-curl -X POST http://localhost:5656/services/rest/accounts/account -d  '{"filter":{"Client_id": 2},"columns":["CategoryName","Client_id","Description"],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[],"data":{"CategoryName": "Dairy Products","Client_id": 2,"Description": "Cheesy","Id": 99}}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
+curl -X POST http://localhost:5656/services/rest/accounttypes/acaccounttype -d  '{"filter":{},"columns":["Name"],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[],"data":{"Name":"Investment"}}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
 #UPDATE
-curl -X PUT http://localhost:5656/services/rest/category/category -d  '{"filter":{"Id": 99},"columns":["CategoryName","Client_id","Description"],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[],"data":{"Client_id": 3,"Description": "Real Cheesy"}}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
+curl -X PUT http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"filter":{"Name": 'LOAN'},"columns":["Name"],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[],"data":{"Name": "LOANS"}}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
 #DELETE
-curl -X DELETE http://localhost:5656/services/rest/category/category -d  '{"filter":{"Id": 99},"columns":[],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
+curl -X DELETE http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"filter":{"Name": "Investment"},"columns":[],"sqltypes":{"Name",12},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'

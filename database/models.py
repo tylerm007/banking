@@ -107,7 +107,7 @@ class Customer(SAFRSBase, Base):
     RegistrationDate = Column(DateTime)
     UserName = Column(String(64), nullable=False)
     Password = Column(String(64), nullable=False)
-    BranchID = Column(ForeignKey('Branch.BranchID'), index=True)
+    BranchID = Column(ForeignKey('Branch.BranchID'), index=True, default='1')
     allow_client_generated_ids = True
 
     # parent relationships (access parent)
@@ -201,9 +201,9 @@ class Transaction(SAFRSBase, Base):
     TransactionID = Column(Integer, primary_key=True)
     AccountID = Column(ForeignKey('Account.AccountID'), index=True)
     TransactionType = Column(Enum('Deposit', 'Withdrawal', 'Transfer'))
-    TotalAmount : DECIMAL = Column(DECIMAL(15, 2))
-    Deposit : DECIMAL = Column(DECIMAL(15, 2))
-    Withdrawl : DECIMAL = Column(DECIMAL(15, 2))
+    TotalAmount : DECIMAL = Column(DECIMAL(15, 2),default='0')
+    Deposit : DECIMAL = Column(DECIMAL(15, 2), default='0')
+    Withdrawl : DECIMAL = Column(DECIMAL(15, 2), default='0')
     ItemImage = Column(Text)
     TransactionDate = Column(DateTime)
     allow_client_generated_ids = True
@@ -234,7 +234,7 @@ class Transfer(SAFRSBase, Base):
     TransactionID = Column(Integer, primary_key=True)
     FromAccountID = Column(ForeignKey('Account.AccountID'), index=True)
     ToAccountID = Column(ForeignKey('Account.AccountID'), index=True)
-    Amount : DECIMAL = Column(DECIMAL(15, 2))
+    Amount : DECIMAL = Column(DECIMAL(15, 2), default='0')
     TransactionDate = Column(DateTime)
     allow_client_generated_ids = True
 
