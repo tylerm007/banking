@@ -1,9 +1,10 @@
+#GET as POST
 curl -X POST http://localhost:5656/services/rest/employees/employee/advancedsearch -d '{"filter":{},"columns":["EMPLOYEEID","EMPLOYEETYPEID","EMPLOYEENAME","EMPLOYEESURNAME","EMPLOYEEADDRESS","EMPLOYEESTARTDATE","EMPLOYEEEMAIL","OFFICEID","EMPLOYEEPHOTO","EMPLOYEEPHONE"],"sqltypes":{},"offset":0,"pageSize":16,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
-
+#GET as POST
 curl -X POST http://localhost:5656/services/rest/customers/customer/advancedsearch -d  '{"filter":{},"columns":["CUSTOMERID","NAME","SURNAME","ADDRESS","STARTDATE","EMAIL"],"sqltypes":{"STARTDATE":93},"offset":0,"pageSize":25,"orderBy":[{"columnName":"LastName","ascendent":true}]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
-#GET
+#GET as POST
 curl -X POST http://localhost:5656/services/rest/accounts/account -d  '{"filter":{"AccountID": 1000},"columns":["Customer","AccountType","AcctBalance"],"sqltypes":{"OpenDate":93},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
 #INSERT
@@ -13,4 +14,4 @@ curl -X POST http://localhost:5656/services/rest/accounttypes/acaccounttype -d  
 curl -X PUT http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"filter":{"Name": 'LOAN'},"columns":["Name"],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[],"data":{"Name": "LOANS"}}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
 
 #DELETE
-curl -X DELETE http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"filter":{"Name": "Investment"},"columns":[],"sqltypes":{"Name",12},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
+curl -X DELETE http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"filter":{"Name": "Investment"},"columns":[],"sqltypes":{"Name":12},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'

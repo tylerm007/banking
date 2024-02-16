@@ -27,6 +27,7 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
     
 def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
+    # sourcery skip: avoid-builtin-shadow
     """ Customize API - new end points for services 
     
         Brief background: see readme_customize_api.md
@@ -49,7 +50,65 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         user = request.args.get('user')
         return jsonify({"result": f'hello, {user}'})
 
+    @app.route('/metadata')
+    def metadata():
+        """
+        Swagger provides typical API discovery.  This is for tool providers
+        requiring programmatic access to api definition, e.g., 
+        to drive artifact code generation.
 
+        Returns json for list of 1 / all resources, with optional attribute name/type, eg
+
+        curl -X GET "http://localhost:5656/metadata?resource=Category&include=attributes"
+
+        curl -X GET "http://localhost:5656/metadata?include=attributes"
+        """
+
+        resource_name = request.args.get('resource')
+        include_attributes = False
+        include = request.args.get('include')
+        if include:
+            include_attributes = "attributes" in include
+        return jsonify(getMetaData(resource_name=resource_name, include_attributes=include_attributes))
+
+    def getMetaData(resource_name:str = None, include_attributes: bool = True) -> dict:
+        import inspect
+        import sys
+        resource_list = []  # array of attributes[], name (so, the name is last...)
+        resource_objs = {}  # objects, named = resource_name
+
+        models_name = "database.models"
+        cls_members = inspect.getmembers(sys.modules["database.models"], inspect.isclass)
+        for each_cls_member in cls_members:
+            each_class_def_str = str(each_cls_member)
+            if (f"'{models_name}." in each_class_def_str and
+                            "Ab" not in each_class_def_str):
+                each_resource_name = each_cls_member[0]
+                each_resource_class = each_cls_member[1]
+                each_resource_mapper = each_resource_class.__mapper__
+                if resource_name is None or resource_name == each_resource_name:
+                    resource_object = {"name": each_resource_name}
+                    resource_list.append(resource_object)
+                    resource_objs[each_resource_name] = {}
+                    if include_attributes:
+                        attr_list = []
+                        for each_attr in each_resource_mapper.attrs:
+                            if not each_attr._is_relationship:
+                                try:
+                                    attribute_object = {"name": each_attr.key,
+                                                        "attr": each_attr,
+                                                        "type": str(each_attr.expression.type)}
+                                except Exception as ex:
+                                    attribute_object = {"name": each_attr.key,
+                                                        "exception": f"{ex}"}
+                                attr_list.append(attribute_object)
+                        resource_object["attributes"] = attr_list
+                        resource_objs[each_resource_name] = {"attributes": attr_list}
+        # pick the format you like
+        #return_result = {"resources": resource_list}
+        return_result = {"resources": resource_objs}
+        return return_result
+    
     @app.route('/stop')
     def stop():  # test it with: http://localhost:5656/stop?msg=API stop - Stop API Logic Server
         """
@@ -146,12 +205,13 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         "accounttypes": models.AccountType,
         "transaction": models.Transaction
     }
+    
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
     @app.route("/services/rest/<path:path>", methods=['POST','PUT','DELETE'])
     def api_search(path):
         s = path.split("/")
         clz_name = s[0]
-        clz_type = s[1] #[2] TODO customerType search advancedSearch (photo)
+        clz_type = s[1] #[2] TODO customerType search advancedSearch defer(photo)
         api_clz = api_map.get(clz_name)
         payload = json.loads(request.data)
         filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
@@ -170,7 +230,8 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                 
             else:
                 #GET (sent as POST)
-                rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
+                #rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
+                rows = get_rows(api_clz, filter, orderBy, columns, pagesize, offset)
                 return jsonify(rows)
                 
         session.execute(stmt)
@@ -180,12 +241,26 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
 
     def get_rows(api_clz, filter, order_by, columns, pagesize, offset):
         # New Style
+        resources = getMetaData(api_clz.__name__)
+        attributes = resources["resources"]["Account"]["attributes"]
+        list_of_columns = []
+        attr_list = list(api_clz._s_columns)
+        #api_clz.__mapper__.attrs #TODO map the columns to the attributes to build the select list
+        for a in attributes:
+            name = a["name"]
+            t = a["type"] #INTEGER or VARCHAR(N)
+            #list_of_columns.append(api_clz._sa_class_manager.get(n))
+            attr = a["attr"]
+            list_of_columns.append(attr)
+        print(list_of_columns)
         stmt = select(api_clz)
         if filter:
             stmt = stmt.where(text(filter))
         if order_by:
             stmt = stmt.order_by(parseOrderBy(order_by))
-        # .options(load_only(list of columns))\ #TODO
+        if list_of_columns:
+            #stmt = stmt.options(load_only(list_of_columns)) #TODO
+            pass
         stmt = stmt.limit(pagesize).offset(offset)
         
         return stmt
@@ -222,7 +297,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             
         """
         sqltypes = payload.get('sqltypes') or None
-        filter:dict = parseFilter(payload.get('filter', {}),sqltypes)
+        filter = parseFilter(payload.get('filter', {}),sqltypes)
         columns:list = payload.get('columns') or []
         offset:int = payload.get('offset') or 0
         pagesize:int = payload.get('pageSize') or 25
@@ -327,7 +402,7 @@ class TransferFunds(safrs.JABase):
         jsonData = json.loads(request.data.decode('utf-8'))
         payload = DotDict(jsonData["meta"]['args'])
         customerId = payload.customer_id
-        transactions = session.query(models.Transaction).all()
+        transactions = session.query(models.Transaction).all() #TODO where(CustomerID = N)
         try:
             from_account = session.query(models.Account).filter(models.Account.AccountID == payload.fromAcctId).one()
         except Exception as ex:
