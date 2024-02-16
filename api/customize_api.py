@@ -203,7 +203,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         "branches": models.Branch,
         "accounts": models.Account,
         "accounttypes": models.AccountType,
-        "transaction": models.Transaction
+        "transactions": models.Transaction
     }
     
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
@@ -231,18 +231,18 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             else:
                 #GET (sent as POST)
                 #rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
-                rows = get_rows(api_clz, filter, orderBy, columns, pagesize, offset)
-                return jsonify(rows)
+                rows = get_rows(request, api_clz, filter, orderBy, columns, pagesize, offset)
+                return rows
                 
         session.execute(stmt)
         session.commit()
         return jsonify({f"{method}":True})
 
 
-    def get_rows(api_clz, filter, order_by, columns, pagesize, offset):
+    def get_rows(request: any, api_clz, filter, order_by, columns, pagesize, offset):
         # New Style
         resources = getMetaData(api_clz.__name__)
-        attributes = resources["resources"]["Account"]["attributes"]
+        attributes = resources["resources"][api_clz.__name__]["attributes"]
         list_of_columns = []
         attr_list = list(api_clz._s_columns)
         #api_clz.__mapper__.attrs #TODO map the columns to the attributes to build the select list
@@ -251,19 +251,15 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             t = a["type"] #INTEGER or VARCHAR(N)
             #list_of_columns.append(api_clz._sa_class_manager.get(n))
             attr = a["attr"]
-            list_of_columns.append(attr)
+            #MAY need to do upper case compares
+            if name in columns:
+                list_of_columns.append(name)
         print(list_of_columns)
-        stmt = select(api_clz)
-        if filter:
-            stmt = stmt.where(text(filter))
-        if order_by:
-            stmt = stmt.order_by(parseOrderBy(order_by))
-        if list_of_columns:
-            #stmt = stmt.options(load_only(list_of_columns)) #TODO
-            pass
-        stmt = stmt.limit(pagesize).offset(offset)
-        
-        return stmt
+        from api.system.custom_endpoint import CustomEndpoint
+        request.method = 'GET'
+        r = CustomEndpoint(model_class=api_clz, fields=list_of_columns, filter_by=filter)
+        result = r.execute(request=request)
+        return result
     
     def get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset):
         #Old Style

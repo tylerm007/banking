@@ -52,7 +52,7 @@ loggers:
         propagate: no
 
     sqlalchemy.engine:
-#        level: DEBUG
+        level: DEBUG
         handlers: [console]
         propagate: no
 
