@@ -11,18 +11,17 @@ from datetime import date
 import safrs
 import json
 import requests
+from confluent_kafka import Producer, KafkaException
+from config.config import Args
+import socket
 
 app_logger = logging.getLogger(__name__)
 
 declare_logic_message = "ALERT:  *** No Rules Yet ***"  # printed in api_logic_server.py
 db = safrs.DB 
 session = db.session 
-class DotDict(dict):
-    """ dot.notation access to dictionary attributes """
-    # thanks: https://stackoverflow.com/questions/2352181/how-to-use-a-dot-to-access-members-of-dictionary/28463329
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+producer = None
+conf = None
     
 def declare_logic():
     ''' Declarative multi-table derivations and constraints, extensible with Python. 
@@ -31,7 +30,7 @@ def declare_logic():
     
     Use code completion (Rule.) to declare rules here:
     '''
-
+    
     def handle_all(logic_row: LogicRow):  # OPTIMISTIC LOCKING, [TIME / DATE STAMPING]
         """
         This is generic - executed for all classes.
@@ -43,6 +42,15 @@ def declare_logic():
         Args:
             logic_row (LogicRow): from LogicBank - old/new row, state
         """
+        global producer,conf
+        if Args.instance.kafka_producer:
+            conf = Args.instance.kafka_producer
+            if "client.id" not in conf:
+                conf["client.id"] = socket.gethostname()
+            # conf = {'bootstrap.servers': 'localhost:9092', 'client.id': socket.gethostname()}
+            producer = Producer(conf)
+            app_logger.debug(f'\nKafka producer connected')
+        
         #This will enable declarative role based access 
         Grant.process_updates(logic_row=logic_row)
         
@@ -55,14 +63,40 @@ def declare_logic():
             if logic_row.ins_upd_dlt == "ins" and hasattr(row, "OpenDate"):
                 row.OpenDate = datetime.datetime.now()
                 logic_row.log("early_row_event_all_classes - handle_all sets 'OpenDate"'')
-                
+        
+    Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
+    
+    Rule.sum(derive=models.Account.AcctBalance, 
+                as_sum_of=models.Transaction.TotalAmount)
+    
+    Rule.constraint(validate=models.Account, 
+                as_condition=lambda row: row.AcctBalance >= 0,
+                error_msg="Account balance {row.AcctBalance} cannot be less than zero")
+        
+    Rule.formula(derive=models.Transaction.TotalAmount,
+                as_expression=lambda row: row.Deposit - row.Withdrawl)
+    
+    Rule.constraint(validate=models.Transaction, 
+                as_condition=lambda row: row.Deposit >= 0,
+                error_msg="Deposit {row.Deposit} must be a positive amount")
+    
+    Rule.constraint(validate=models.Transaction, 
+                as_condition=lambda row: row.Withdrawl >= 0,
+                error_msg="Withdrawl {row.Withdrawl} must be a positive amount")
+    
+    Rule.constraint(validate=models.Transfer, 
+                as_condition=lambda row: row.FromAccountID != row.ToAccountID,
+                error_msg="FromAccount {row.FromAccountID} must be different from ToAccount {row.ToAccountID}")
+            
     def fn_overdraft(row=models.Account, old_row=models.Account, logic_row=LogicRow):
-        if row.AcctBalance  <0: #  __lt__(0):
+        if row.AcctBalance  < 0: #  __lt__(0):
             pass
-            #transfer funds from "Loan"
+            # Find and transfer funds from "Loan"
             #1) find loan account if exists
             #2) if loanAcct.AcctBalance > overdraft then transfer funds
-        
+    
+    Rule.commit_row_event(on_class=models.Account,calling=fn_overdraft)
+    
     def fn_default_customer(row=models.Customer , old_row=models.Customer, logic_row=LogicRow):
         if logic_row.ins_upd_dlt == "ins" and row.RegistrationDate is None:
             row.RegistrationDate = date.today()
@@ -103,16 +137,22 @@ def declare_logic():
             raise requests.RequestException(
                 f"From Account {fromAcctId} not found"
             ) from ex
+            
+        try:
+            to_account = session.query(models.Account).filter(models.Account.AccountID == toAcctId).one()
+        except Exception as ex:
+            raise requests.RequestException(
+                f"To Account {toAcctId} not found"
+            ) from ex
+        
+        if from_account.Customer != to_account.Customer:
+            raise requests.RequestException(
+                f"FromAccount Customer {from_account.Customer} must be the same as the ToAccount Customer {to_account.Customer}"
+            ) from ex
         
         if from_account.AcctBalance > amount:
             # #Not Enough Funds - if Loan exists move to cover Overdraft (transfer Loan to from_acct)
-            transfer = models.Transfer()
-            transfer.FromAccountID = 3000 # add link account to checking and savings
-            transfer.ToAccountID = toAcctId
-            transfer.Amount = amount - from_account.AcctBalance 
-            transfer.TransactionDate = date.today()
-            transfer.TransactionID = row.TransactionID
-            #session.add(transfer)
+            pass
             
         from_trans = models.Transaction()
         from_trans.TransactionID = len(transactions) + 2
@@ -122,13 +162,6 @@ def declare_logic():
         from_trans.TransactionDate = date.today()
         session.add(from_trans)
         
-        try:
-            to_account = session.query(models.Account).filter(models.Account.AccountID == toAcctId).one()
-        except Exception as ex:
-            raise requests.RequestException(
-                f"To Account {toAcctId} not found"
-            ) from ex
-        
         to_trans = models.Transaction()
         to_trans.TransactionID = len(transactions) + 3
         to_trans.AccountID = toAcctId
@@ -137,38 +170,29 @@ def declare_logic():
         to_trans.TransactionDate = date.today()
         session.add(to_trans)
         
-        #session.commit()
+        if producer:
+            try:
+                value = {
+                    "transactionID": row.TransactionID,
+                    "transactionDate": date.today(),
+                    "customerID": to_account.CustomerID,
+                    "fromAcct": fromAcctId,
+                    "toAcct": toAcctId,
+                    "amount": amount
+                }
+                producer.produce(value=value, topic="transfer_funds", key=row.TransactionID)
+            except KafkaException as ke:
+                logic_row.log("kafka_producer#kafka_message error: {ke}") 
+        
         logic_row.log("Funds transferred successfully!")
-    
-    Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
+
     Rule.early_row_event(on_class=models.Customer, calling=fn_default_customer)
     Rule.early_row_event(on_class=models.Account, calling=fn_default_account)
     Rule.early_row_event(on_class=models.Transaction, calling=fn_default_transaction)
     Rule.early_row_event(on_class=models.Transfer, calling=fn_default_transfer)
 
-    Rule.sum(derive=models.Account.AcctBalance, 
-                as_sum_of=models.Transaction.TotalAmount)
-    
-    Rule.constraint(validate=models.Account, 
-                as_condition=lambda row: row.AcctBalance >= 0,
-                error_msg="Account balance {row.AcctBalance} cannot be less than zero")
-        
-    Rule.formula(derive=models.Transaction.TotalAmount,
-                as_expression=lambda row: row.Deposit - row.Withdrawl)
-    
-    Rule.commit_row_event(on_class=models.Account,calling=fn_overdraft)
-    
-    Rule.constraint(validate=models.Transaction, 
-                as_condition=lambda row: row.Deposit >= 0,
-                error_msg="Deposit {row.Deposit} must be a positive amount")
-    
-    Rule.constraint(validate=models.Transaction, 
-                as_condition=lambda row: row.Withdrawl >= 0,
-                error_msg="Withdrawl {row.Withdrawl} must be a positive amount")
-    
-    Rule.formula(derive=models.Account.OpenDate, as_expression=lambda row: date.today())
-    
     Rule.commit_row_event(on_class=models.Transfer, calling=fn_transfer_funds)
-    
+
+    declare_logic_message = "..logic/declare_logic.py (logic == rules + code)"
     app_logger.debug("..logic/declare_logic.py (logic == rules + code)")
 

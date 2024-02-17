@@ -177,8 +177,8 @@ class Account(SAFRSBase, Base):
 
     # child relationships (access children)
     TransactionList : Mapped[List["Transaction"]] = relationship(back_populates="Account")
-    TransferFrom : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates="Account")
-    TransferTo : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates="Account1")
+    TransferFrom : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates="FromAccount")
+    TransferTo : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates="ToAccount")
 
     @jsonapi_attr
     def _check_sum_(self):  # type: ignore [no-redef]
@@ -239,8 +239,8 @@ class Transfer(SAFRSBase, Base):
     allow_client_generated_ids = True
 
     # parent relationships (access parent)
-    Account : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferFrom"))
-    Account1 : Mapped["Account"] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates=("TransferTo"))
+    FromAccount : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferFrom"))
+    ToAccount : Mapped["Account"] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates=("TransferTo"))
 
     # child relationships (access children)
 

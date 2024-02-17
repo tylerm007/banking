@@ -156,7 +156,7 @@ def validate_db_uri(flask_app):
     """
 
     db_uri = flask_app.config['SQLALCHEMY_DATABASE_URI']
-    app_logger.debug(f'sqlite_db_path validity check with db_uri: {db_uri}')
+    app_logger.debug(f'sqlite db_uri validity check using db_uri: {db_uri}')
     if 'sqlite' not in db_uri:
         return
     sqlite_db_path = ""
@@ -380,8 +380,8 @@ if __name__ == "__main__":
                 f'.... and  swagger_port: {args.swagger_port}')
     if logic_alerts:
         app_logger.info(f'\nOpen {args.http_scheme}://{args.swagger_host}:{args.port}   -- Alert: These following are **Critical** to unlocking value')
-        app_logger.info(f'.. see logic.declare_logic.py       -- {declare_logic_message}')
-        app_logger.info(f'.. see security.declare_security.py -- {declare_security_message}\n')
+        #app_logger.info(f'.. see logic.declare_logic.py       -- {declare_logic_message}')
+        #app_logger.info(f'.. see security.declare_security.py -- {declare_security_message}\n')
 
     flask_app.run(host=args.flask_host, threaded=True, port=args.port)
 else:

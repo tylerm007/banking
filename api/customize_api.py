@@ -357,22 +357,6 @@ def rows_to_dict(result: any) -> list:
 
 class TransferFunds(safrs.JABase):
     """
-    curl -X 'POST' \
-        'http://localhost:5656/api/TransferFunds/transfer_funds' \
-        -H 'accept: application/vnd.api+json' \
-        -H 'Content-Type: application/json' \
-        -d '{
-        "meta": {
-            "method": "transfer_funds",
-            "args": {
-            "customer_id": 1,
-            "fromAcctId": 2000,
-            "toAcctId": 1000,
-            "amount": 10
-            }
-        }
-        }'
-
     Args:
         safrs (_type_): _description_
 

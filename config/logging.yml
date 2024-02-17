@@ -42,7 +42,7 @@ loggers:
         propagate: no
 
     api_logic_server_app:
-        level: INFO
+        level: DEBUG
         handlers: [console]
         propagate: no
 
