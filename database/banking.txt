@@ -1,7 +1,13 @@
+Creation
+    ApiLogicServer create --project_name=banking --db_url=mysql+pymysql://root:p@localhost:3306/banking
+
+
 Database repair process
 
     docker> mysqldump -u root -p banking > banking.sql;
     local> docker cp mysql-container:banking.sql database/banking_fixed.sql
     local> ApiLogicServer rebuild-from-database --project_name=. --db_url=mysql+pymysql://root:p@localhost:3306/banking
 
-About to add reln AccountType -> Account
+Added reln AccountType -> Account
+
+Populated: Branch, Customer, AccountType, Customer, Account, Employees (?)

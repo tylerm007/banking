@@ -1,22 +1,22 @@
 about:
-  date: February 15, 2024 09:33:46
+  date: February 17, 2024 13:14:30
   recent_changes: works with modified safrs-react-admin
   version: 0.0.0
 api_root: '{http_type}://{swagger_host}:{port}/{api}'
 authentication:
   endpoint: '{http_type}://{swagger_host}:{port}/api/auth/login'
 info:
-  number_relationships: 6
+  number_relationships: 7
   number_tables: 7
 resources:
   Account:
     attributes:
-    - label: ' Account ID*'
+    - label: ' Account I D*'
       name: AccountID
       search: true
       sort: true
-    - name: CustomerID
     - name: AccountType
+    - name: CustomerID
     - name: AcctBalance
     - name: OpenDate
     tab_groups:
@@ -28,13 +28,18 @@ resources:
     - direction: tomany
       fks:
       - FromAccountID
-      name: TransferFrom
+      name: TransferList
       resource: Transfer
     - direction: tomany
       fks:
       - ToAccountID
-      name: TransferTo
+      name: TransferList1
       resource: Transfer
+    - direction: toone
+      fks:
+      - AccountType
+      name: AccountType1
+      resource: AccountType
     - direction: toone
       fks:
       - CustomerID
@@ -49,6 +54,12 @@ resources:
       required: true
       search: true
       sort: true
+    tab_groups:
+    - direction: tomany
+      fks:
+      - AccountType
+      name: AccountList
+      resource: Account
     type: AccountType
     user_key: Name
   Branch:
@@ -118,7 +129,6 @@ resources:
       required: true
     - name: BirthDate
     - name: Photo
-      type: Image
     - name: Notes
     - name: EmployeeID
     tab_groups:
@@ -164,12 +174,12 @@ resources:
     - direction: toone
       fks:
       - FromAccountID
-      name: FromAccount
+      name: Account
       resource: Account
     - direction: toone
       fks:
       - ToAccountID
-      name: ToAccount
+      name: Account1
       resource: Account
     type: Transfer
     user_key: TransactionID

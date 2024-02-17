@@ -25,13 +25,15 @@ DROP TABLE IF EXISTS `Account`;
 CREATE TABLE `Account` (
   `AccountID` int NOT NULL AUTO_INCREMENT,
   `CustomerID` int DEFAULT NULL,
-  `AccountType` enum('Savings','Checking','Loan') DEFAULT NULL,
+  `AccountType` varchar(25) DEFAULT NULL,
   `AcctBalance` decimal(15,2) DEFAULT NULL,
   `OpenDate` datetime DEFAULT NULL,
   PRIMARY KEY (`AccountID`),
   KEY `CustomerID` (`CustomerID`),
+  KEY `Account_fk2` (`AccountType`),
+  CONSTRAINT `Account_fk2` FOREIGN KEY (`AccountType`) REFERENCES `AccountType` (`Name`),
   CONSTRAINT `Account_ibfk_1` FOREIGN KEY (`CustomerID`) REFERENCES `Customer` (`CustomerID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +42,7 @@ CREATE TABLE `Account` (
 
 LOCK TABLES `Account` WRITE;
 /*!40000 ALTER TABLE `Account` DISABLE KEYS */;
-INSERT INTO `Account` VALUES (1,1,'Checking',100.00,'2024-02-17 11:44:56');
+INSERT INTO `Account` VALUES (2,1,'Checking',200.00,'2024-02-17 12:51:47'),(4,1,'Savings',400.00,'2024-02-17 12:55:50');
 /*!40000 ALTER TABLE `Account` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -63,7 +65,7 @@ CREATE TABLE `AccountType` (
 
 LOCK TABLES `AccountType` WRITE;
 /*!40000 ALTER TABLE `AccountType` DISABLE KEYS */;
-INSERT INTO `AccountType` VALUES ('Checking'),('Savings');
+INSERT INTO `AccountType` VALUES ('Checking'),('Loan'),('Savings');
 /*!40000 ALTER TABLE `AccountType` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -230,4 +232,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-17 19:58:44
+-- Dump completed on 2024-02-17 21:22:50

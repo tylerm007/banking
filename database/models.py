@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 # Alter this file per your database maintenance policy
 #    See https://apilogicserver.github.io/Docs/Project-Rebuild/#rebuilding
 #
-# Created:  February 17, 2024 11:32:50
+# Created:  February 17, 2024 13:11:51
 # Database: mysql+pymysql://root:p@localhost:3306/banking
 # Dialect:  mysql
 #
@@ -48,6 +48,7 @@ class AccountType(SAFRSBase, Base):
     # parent relationships (access parent)
 
     # child relationships (access children)
+    AccountList : Mapped[List["Account"]] = relationship(back_populates="AccountType1")
 
     @jsonapi_attr
     def _check_sum_(self):  # type: ignore [no-redef]
@@ -166,11 +167,12 @@ class Account(SAFRSBase, Base):
 
     AccountID = Column(Integer, primary_key=True)
     CustomerID = Column(ForeignKey('Customer.CustomerID'), index=True)
-    AccountType = Column(Enum('Savings', 'Checking', 'Loan'))
+    AccountType = Column(ForeignKey('AccountType.Name'), index=True)
     AcctBalance : DECIMAL = Column(DECIMAL(15, 2))
     OpenDate = Column(DateTime)
 
     # parent relationships (access parent)
+    AccountType1 : Mapped["AccountType"] = relationship(back_populates=("AccountList"))
     Customer : Mapped["Customer"] = relationship(back_populates=("AccountList"))
 
     # child relationships (access children)

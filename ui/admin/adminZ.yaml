@@ -1,10 +1,5 @@
 about:
   date: February 15, 2024 09:33:46
-  merged:
-    at: February 17, 2024 11:32:50
-    new_attributes: ''
-    new_resources: ''
-    new_tab_groups: 'Account.TransferList Account.TransferList1 Transfer.Account Transfer.Account1 '
   recent_changes: works with modified safrs-react-admin
   version: 0.0.0
 api_root: '{http_type}://{swagger_host}:{port}/{api}'
@@ -45,16 +40,6 @@ resources:
       - CustomerID
       name: Customer
       resource: Customer
-    - direction: tomany
-      fks:
-      - FromAccountID
-      name: TransferList
-      resource: Transfer
-    - direction: tomany
-      fks:
-      - ToAccountID
-      name: TransferList1
-      resource: Transfer
     type: Account
     user_key: AccountID
   AccountType:
@@ -185,16 +170,6 @@ resources:
       fks:
       - ToAccountID
       name: ToAccount
-      resource: Account
-    - direction: toone
-      fks:
-      - FromAccountID
-      name: Account
-      resource: Account
-    - direction: toone
-      fks:
-      - ToAccountID
-      name: Account1
       resource: Account
     type: Transfer
     user_key: TransactionID
