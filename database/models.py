@@ -9,8 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 # Alter this file per your database maintenance policy
 #    See https://apilogicserver.github.io/Docs/Project-Rebuild/#rebuilding
 #
-# Created:  February 15, 2024 09:33:46
-# Database: mysql+pymysql://root:password@127.0.0.1:3308/banking
+# Created:  February 17, 2024 11:32:50
+# Database: mysql+pymysql://root:p@localhost:3306/banking
 # Dialect:  mysql
 #
 # mypy: ignore-errors
@@ -68,9 +68,9 @@ class Branch(SAFRSBase, Base):
     __bind_key__ = 'None'
 
     BranchID = Column(Integer, primary_key=True)
-    Name = Column(String(25))
+    Name = Column(String(100))
     Office = Column(String(15))
-    Address = Column(String(35))
+    Address = Column(String(100))
     OpenDate = Column(DateTime)
 
     # parent relationships (access parent)
@@ -107,8 +107,7 @@ class Customer(SAFRSBase, Base):
     RegistrationDate = Column(DateTime)
     UserName = Column(String(64), nullable=False)
     Password = Column(String(64), nullable=False)
-    BranchID = Column(ForeignKey('Branch.BranchID'), index=True, default='1')
-    allow_client_generated_ids = True
+    BranchID = Column(ForeignKey('Branch.BranchID'), index=True)
 
     # parent relationships (access parent)
     Branch : Mapped["Branch"] = relationship(back_populates=("CustomerList"))
@@ -170,15 +169,14 @@ class Account(SAFRSBase, Base):
     AccountType = Column(Enum('Savings', 'Checking', 'Loan'))
     AcctBalance : DECIMAL = Column(DECIMAL(15, 2))
     OpenDate = Column(DateTime)
-    allow_client_generated_ids = True
 
     # parent relationships (access parent)
     Customer : Mapped["Customer"] = relationship(back_populates=("AccountList"))
 
     # child relationships (access children)
     TransactionList : Mapped[List["Transaction"]] = relationship(back_populates="Account")
-    TransferFrom : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates="FromAccount")
-    TransferTo : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates="ToAccount")
+    TransferList : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates="Account")
+    TransferList1 : Mapped[List["Transfer"]] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates="Account1")
 
     @jsonapi_attr
     def _check_sum_(self):  # type: ignore [no-redef]
@@ -201,12 +199,11 @@ class Transaction(SAFRSBase, Base):
     TransactionID = Column(Integer, primary_key=True)
     AccountID = Column(ForeignKey('Account.AccountID'), index=True)
     TransactionType = Column(Enum('Deposit', 'Withdrawal', 'Transfer'))
-    TotalAmount : DECIMAL = Column(DECIMAL(15, 2),default='0')
-    Deposit : DECIMAL = Column(DECIMAL(15, 2), default='0')
-    Withdrawl : DECIMAL = Column(DECIMAL(15, 2), default='0')
+    TotalAmount : DECIMAL = Column(DECIMAL(15, 2))
+    Deposit : DECIMAL = Column(DECIMAL(15, 2))
+    Withdrawl : DECIMAL = Column(DECIMAL(15, 2))
     ItemImage = Column(Text)
     TransactionDate = Column(DateTime)
-    allow_client_generated_ids = True
 
     # parent relationships (access parent)
     Account : Mapped["Account"] = relationship(back_populates=("TransactionList"))
@@ -234,13 +231,12 @@ class Transfer(SAFRSBase, Base):
     TransactionID = Column(Integer, primary_key=True)
     FromAccountID = Column(ForeignKey('Account.AccountID'), index=True)
     ToAccountID = Column(ForeignKey('Account.AccountID'), index=True)
-    Amount : DECIMAL = Column(DECIMAL(15, 2), default='0')
+    Amount : DECIMAL = Column(DECIMAL(15, 2))
     TransactionDate = Column(DateTime)
-    allow_client_generated_ids = True
 
     # parent relationships (access parent)
-    FromAccount : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferFrom"))
-    ToAccount : Mapped["Account"] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates=("TransferTo"))
+    Account : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferList"))
+    Account1 : Mapped["Account"] = relationship(foreign_keys='[Transfer.ToAccountID]', back_populates=("TransferList1"))
 
     # child relationships (access children)
 

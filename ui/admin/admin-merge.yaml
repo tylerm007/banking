@@ -1,0 +1,203 @@
+about:
+  date: February 15, 2024 09:33:46
+  merged:
+    at: February 17, 2024 11:32:50
+    new_attributes: ''
+    new_resources: ''
+    new_tab_groups: 'Account.TransferList Account.TransferList1 Transfer.Account Transfer.Account1 '
+  recent_changes: works with modified safrs-react-admin
+  version: 0.0.0
+api_root: '{http_type}://{swagger_host}:{port}/{api}'
+authentication:
+  endpoint: '{http_type}://{swagger_host}:{port}/api/auth/login'
+info:
+  number_relationships: 6
+  number_tables: 7
+resources:
+  Account:
+    attributes:
+    - label: ' Account ID*'
+      name: AccountID
+      search: true
+      sort: true
+    - name: CustomerID
+    - name: AccountType
+    - name: AcctBalance
+    - name: OpenDate
+    tab_groups:
+    - direction: tomany
+      fks:
+      - AccountID
+      name: TransactionList
+      resource: Transaction
+    - direction: tomany
+      fks:
+      - FromAccountID
+      name: TransferFrom
+      resource: Transfer
+    - direction: tomany
+      fks:
+      - ToAccountID
+      name: TransferTo
+      resource: Transfer
+    - direction: toone
+      fks:
+      - CustomerID
+      name: Customer
+      resource: Customer
+    - direction: tomany
+      fks:
+      - FromAccountID
+      name: TransferList
+      resource: Transfer
+    - direction: tomany
+      fks:
+      - ToAccountID
+      name: TransferList1
+      resource: Transfer
+    type: Account
+    user_key: AccountID
+  AccountType:
+    attributes:
+    - label: ' Name*'
+      name: Name
+      required: true
+      search: true
+      sort: true
+    type: AccountType
+    user_key: Name
+  Branch:
+    attributes:
+    - label: ' Name*'
+      name: Name
+      search: true
+      sort: true
+    - name: Office
+    - name: Address
+    - name: OpenDate
+    - name: BranchID
+    tab_groups:
+    - direction: tomany
+      fks:
+      - BranchID
+      name: CustomerList
+      resource: Customer
+    - direction: tomany
+      fks:
+      - Branch
+      name: EmployeeList
+      resource: Employee
+    type: Branch
+    user_key: Name
+  Customer:
+    attributes:
+    - label: ' First Name*'
+      name: FirstName
+      search: true
+      sort: true
+    - name: BranchID
+    - name: LastName
+    - name: Email
+    - name: PhoneNumber
+    - name: Address
+    - name: BirthDate
+      type: DATE
+    - name: RegistrationDate
+    - name: UserName
+      required: true
+    - name: CustomerID
+    - name: Password
+      required: true
+    tab_groups:
+    - direction: tomany
+      fks:
+      - CustomerID
+      name: AccountList
+      resource: Account
+    - direction: toone
+      fks:
+      - BranchID
+      name: Branch
+      resource: Branch
+    type: Customer
+    user_key: FirstName
+  Employee:
+    attributes:
+    - label: ' Last Name*'
+      name: LastName
+      required: true
+      search: true
+      sort: true
+    - name: Branch
+    - name: FirstName
+      required: true
+    - name: BirthDate
+    - name: Photo
+      type: Image
+    - name: Notes
+    - name: EmployeeID
+    tab_groups:
+    - direction: toone
+      fks:
+      - Branch
+      name: Branch1
+      resource: Branch
+    type: Employee
+    user_key: LastName
+  Transaction:
+    attributes:
+    - label: ' Transaction I D*'
+      name: TransactionID
+      search: true
+      sort: true
+    - name: AccountID
+    - name: TransactionType
+    - name: TotalAmount
+    - name: Deposit
+    - name: Withdrawl
+    - name: ItemImage
+    - name: TransactionDate
+    tab_groups:
+    - direction: toone
+      fks:
+      - AccountID
+      name: Account
+      resource: Account
+    type: Transaction
+    user_key: TransactionID
+  Transfer:
+    attributes:
+    - label: ' Transaction I D*'
+      name: TransactionID
+      search: true
+      sort: true
+    - name: FromAccountID
+    - name: ToAccountID
+    - name: Amount
+    - name: TransactionDate
+    tab_groups:
+    - direction: toone
+      fks:
+      - FromAccountID
+      name: FromAccount
+      resource: Account
+    - direction: toone
+      fks:
+      - ToAccountID
+      name: ToAccount
+      resource: Account
+    - direction: toone
+      fks:
+      - FromAccountID
+      name: Account
+      resource: Account
+    - direction: toone
+      fks:
+      - ToAccountID
+      name: Account1
+      resource: Account
+    type: Transfer
+    user_key: TransactionID
+settings:
+  HomeJS: http://localhost:5656/admin-app/home.js
+  max_list_columns: 8
