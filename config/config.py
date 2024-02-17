@@ -95,6 +95,7 @@ class Config:
 
     # Database
     SQLALCHEMY_DATABASE_URI : typing.Optional[str] = f"mysql+pymysql://root:password@127.0.0.1:3308/banking"
+    SQLALCHEMY_DATABASE_URI : typing.Optional[str] = f"mysql+pymysql://root:p@localhost:3306/banking"    # override SQLALCHEMY_DATABASE_URI here as required
     # override SQLALCHEMY_DATABASE_URI here as required
 
     app_logger.debug(f'config.py - SQLALCHEMY_DATABASE_URI: {SQLALCHEMY_DATABASE_URI}')
