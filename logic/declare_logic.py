@@ -158,19 +158,19 @@ def declare_logic():
         from_trans.TransactionID = len(transactions) + 2
         from_trans.AccountID = fromAcctId
         from_trans.Withdrawl = amount
-        from_trans.TransactionType = "Transfer"
+        from_trans.TransactionType = "Transfer From"
         from_trans.TransactionDate = date.today()
         #session.add(from_trans)
-        from_trans.insert(reason="Transfer")
+        from_trans.insert(reason="Transfer From")
         
         to_trans = logic_row.new_logic_row(models.Transaction)
         to_trans.TransactionID = len(transactions) + 3
         to_trans.AccountID = toAcctId
         to_trans.Deposit = amount
-        to_trans.TransactionType = "Transfer"
+        to_trans.TransactionType = "Transfer To"
         to_trans.TransactionDate = date.today()
         #session.add(to_trans)
-        to_trans.insert(reason="Transfer")
+        to_trans.insert(reason="Transfer To")
         
         if producer:
             try:
