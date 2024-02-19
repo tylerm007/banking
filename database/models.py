@@ -106,8 +106,8 @@ class Customer(SAFRSBase, Base):
     Address = Column(String(200))
     BirthDate = Column(Date)
     RegistrationDate = Column(DateTime)
-    UserName = Column(String(64), nullable=False)
-    Password = Column(String(64), nullable=False)
+    UserName = Column(String(64))
+    Password = Column(String(64))
     BranchID = Column(ForeignKey('Branch.BranchID'), index=True)
 
     # parent relationships (access parent)
@@ -168,7 +168,7 @@ class Account(SAFRSBase, Base):
     AccountID = Column(Integer, primary_key=True)
     CustomerID = Column(ForeignKey('Customer.CustomerID'), index=True)
     AccountType = Column(ForeignKey('AccountType.Name'), index=True)
-    AcctBalance : DECIMAL = Column(DECIMAL(15, 2))
+    AcctBalance : DECIMAL = Column(DECIMAL(15, 2), server_default="0")
     OpenDate = Column(DateTime)
 
     # parent relationships (access parent)
@@ -201,9 +201,9 @@ class Transaction(SAFRSBase, Base):
     TransactionID = Column(Integer, primary_key=True)
     AccountID = Column(ForeignKey('Account.AccountID'), index=True)
     TransactionType = Column(Enum('Deposit', 'Withdrawal', 'Transfer'))
-    TotalAmount : DECIMAL = Column(DECIMAL(15, 2))
-    Deposit : DECIMAL = Column(DECIMAL(15, 2))
-    Withdrawl : DECIMAL = Column(DECIMAL(15, 2))
+    TotalAmount : DECIMAL = Column(DECIMAL(15, 2), server_default="0")
+    Deposit : DECIMAL = Column(DECIMAL(15, 2), server_default="0")
+    Withdrawl : DECIMAL = Column(DECIMAL(15, 2), server_default="0")
     ItemImage = Column(Text)
     TransactionDate = Column(DateTime)
 
@@ -233,7 +233,7 @@ class Transfer(SAFRSBase, Base):
     TransactionID = Column(Integer, primary_key=True)
     FromAccountID = Column(ForeignKey('Account.AccountID'), index=True)
     ToAccountID = Column(ForeignKey('Account.AccountID'), index=True)
-    Amount : DECIMAL = Column(DECIMAL(15, 2))
+    Amount : DECIMAL = Column(DECIMAL(15, 2), server_default="0")
     TransactionDate = Column(DateTime)
 
     # parent relationships (access parent)
