@@ -26,7 +26,7 @@ CREATE TABLE `Account` (
   `AccountID` int NOT NULL AUTO_INCREMENT,
   `CustomerID` int DEFAULT NULL,
   `AccountType` varchar(25) DEFAULT NULL,
-  `AcctBalance` decimal(15,2) DEFAULT NULL,
+  `AcctBalance` decimal(15,2) DEFAULT 0,
   `OpenDate` datetime DEFAULT NULL,
   PRIMARY KEY (`AccountID`),
   KEY `CustomerID` (`CustomerID`),
@@ -83,7 +83,7 @@ CREATE TABLE `Branch` (
   `Address` varchar(100) DEFAULT NULL,
   `OpenDate` datetime DEFAULT NULL,
   PRIMARY KEY (`BranchID`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +92,7 @@ CREATE TABLE `Branch` (
 
 LOCK TABLES `Branch` WRITE;
 /*!40000 ALTER TABLE `Branch` DISABLE KEYS */;
-INSERT INTO `Branch` VALUES (14,'Main','MainOffice','1 Main','2024-02-17 11:35:12'),(15,'Remote','RemoteOffice','Remoteville','2024-02-17 11:35:45');
+INSERT INTO `Branch` VALUES (1,'Main','MainOffice','1 Main','2024-02-17 11:35:12'),(15,'Remote','RemoteOffice','Remoteville','2024-02-17 11:35:45');
 /*!40000 ALTER TABLE `Branch` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -112,9 +112,9 @@ CREATE TABLE `Customer` (
   `Address` varchar(200) DEFAULT NULL,
   `BirthDate` date DEFAULT NULL,
   `RegistrationDate` datetime DEFAULT NULL,
-  `UserName` varchar(64) NOT NULL,
-  `Password` varchar(64) NOT NULL,
-  `BranchID` int DEFAULT NULL,
+  `UserName` varchar(64),
+  `Password` varchar(64),
+  `BranchID` int DEFAULT 1,
   PRIMARY KEY (`CustomerID`),
   KEY `fk_Customer_Branch` (`BranchID`),
   CONSTRAINT `fk_Customer_Branch` FOREIGN KEY (`BranchID`) REFERENCES `Branch` (`BranchID`)
@@ -127,7 +127,7 @@ CREATE TABLE `Customer` (
 
 LOCK TABLES `Customer` WRITE;
 /*!40000 ALTER TABLE `Customer` DISABLE KEYS */;
-INSERT INTO `Customer` VALUES (1,'Main','Customer',NULL,NULL,NULL,NULL,'2024-02-17 00:00:00','valued-customer','p',14),(2,'Remote','Customer',NULL,NULL,NULL,NULL,'2024-02-17 00:00:00','another-customer','p',15);
+INSERT INTO `Customer` VALUES (1,'Main','Customer',NULL,NULL,NULL,NULL,'2024-02-17 00:00:00','valued-customer','p',14),(2,'Remote','Customer',NULL,NULL,NULL,NULL,'2024-02-17 00:00:00','another-customer','p',1);
 /*!40000 ALTER TABLE `Customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -158,7 +158,7 @@ CREATE TABLE `Employees` (
 
 LOCK TABLES `Employees` WRITE;
 /*!40000 ALTER TABLE `Employees` DISABLE KEYS */;
-INSERT INTO `Employees` VALUES (19,'Employee-Main','Joe',14,NULL,NULL,NULL),(20,'Employee-Remote','Mary',15,NULL,NULL,NULL);
+INSERT INTO `Employees` VALUES (19,'Employee-Main','Joe',1,NULL,NULL,NULL),(20,'Employee-Remote','Mary',1,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `Employees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -173,9 +173,9 @@ CREATE TABLE `Transaction` (
   `TransactionID` int NOT NULL AUTO_INCREMENT,
   `AccountID` int DEFAULT NULL,
   `TransactionType` enum('Deposit','Withdrawal','Transfer') DEFAULT NULL,
-  `TotalAmount` decimal(15,2) DEFAULT NULL,
-  `Deposit` decimal(15,2) DEFAULT NULL,
-  `Withdrawl` decimal(15,2) DEFAULT NULL,
+  `TotalAmount` decimal(15,2) DEFAULT 0,
+  `Deposit` decimal(15,2) DEFAULT 0,
+  `Withdrawl` decimal(15,2) DEFAULT 0,
   `ItemImage` text,
   `TransactionDate` datetime DEFAULT NULL,
   PRIMARY KEY (`TransactionID`),
@@ -204,7 +204,7 @@ CREATE TABLE `Transfer` (
   `TransactionID` int NOT NULL AUTO_INCREMENT,
   `FromAccountID` int DEFAULT NULL,
   `ToAccountID` int DEFAULT NULL,
-  `Amount` decimal(15,2) DEFAULT NULL,
+  `Amount` decimal(15,2) DEFAULT 0,
   `TransactionDate` datetime DEFAULT NULL,
   PRIMARY KEY (`TransactionID`),
   KEY `FromAccountID` (`FromAccountID`),
