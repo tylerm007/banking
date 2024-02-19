@@ -10,18 +10,17 @@ import logging
 from datetime import date
 import safrs
 import json
-import requests
+from flask import request, jsonify
 from confluent_kafka import Producer, KafkaException
+import integration.kafka.kafka_producer as kafka_producer
 from config.config import Args
-import socket
+
 
 app_logger = logging.getLogger(__name__)
 
 declare_logic_message = "ALERT:  *** No Rules Yet ***"  # printed in api_logic_server.py
 db = safrs.DB 
 session = db.session 
-producer = None
-conf = None
     
 def declare_logic():
     ''' Declarative multi-table derivations and constraints, extensible with Python. 
@@ -42,14 +41,6 @@ def declare_logic():
         Args:
             logic_row (LogicRow): from LogicBank - old/new row, state
         """
-        global producer,conf
-        if Args.instance.kafka_producer:
-            conf = Args.instance.kafka_producer
-            if "client.id" not in conf:
-                conf["client.id"] = socket.gethostname()
-            # conf = {'bootstrap.servers': 'localhost:9092', 'client.id': socket.gethostname()}
-            producer = Producer(conf)
-            app_logger.debug(f'\nKafka producer connected')
         
         #This will enable declarative role based access 
         Grant.process_updates(logic_row=logic_row)
@@ -126,10 +117,11 @@ def declare_logic():
     def fn_transfer_funds(row=models.Transfer, old_row=models.Transfer, logic_row=LogicRow):
         if logic_row.ins_upd_dlt != "ins":
             return
+        
         fromAcctId = row.FromAccountID
         toAcctId = row.ToAccountID
         amount = row.Amount
-        
+        from sqlalchemy import select
         transactions = session.query(models.Transaction).all()
         try:
             from_account = session.query(models.Account).filter(models.Account.AccountID == fromAcctId).one()
@@ -154,26 +146,25 @@ def declare_logic():
             # #Not Enough Funds - if Loan exists move to cover Overdraft (transfer Loan to from_acct)
             pass
             
-        from_trans = models.Transaction()
+        from_trans = logic_row.new_logic_row(models.Transaction)
         from_trans.TransactionID = len(transactions) + 2
         from_trans.AccountID = fromAcctId
         from_trans.Withdrawl = amount
         from_trans.TransactionType = "Transfer From"
         from_trans.TransactionDate = date.today()
-        #session.add(from_trans)
-        logic_row.insert(reason="Transfer From",row=from_trans)
+        from_trans.insert(reason="Transfer From")
         
-        to_trans = models.Transaction()
+        to_trans = logic_row.new_logic_row(models.Transaction)
         to_trans.TransactionID = len(transactions) + 3
         to_trans.AccountID = toAcctId
         to_trans.Deposit = amount
         to_trans.TransactionType = "Transfer To"
         to_trans.TransactionDate = date.today()
-        #session.add(to_trans)
-        logic_row.insert(reason="Transfer To", row=to_trans)
-        
-        if producer:
+        to_trans.insert(reason="Transfer To")
+        producer : Producer = None
+        if kafka_producer.producer:
             try:
+                producer = kafka_producer.producer
                 value = {
                     "transactionID": row.TransactionID,
                     "transactionDate": date.today(),
@@ -182,7 +173,9 @@ def declare_logic():
                     "toAcct": toAcctId,
                     "amount": amount
                 }
-                producer.produce(value=value, topic="transfer_funds", key=row.TransactionID)
+                json_order_response = jsonify({"transfer": value})
+                json_transfer = json_order_response.data.decode('utf-8')
+                producer.produce(value=json_transfer, topic="transfer_funds", key=row.TransactionID)
             except KafkaException as ke:
                 logic_row.log("kafka_producer#kafka_message error: {ke}") 
         
@@ -193,7 +186,7 @@ def declare_logic():
     Rule.early_row_event(on_class=models.Transaction, calling=fn_default_transaction)
     Rule.early_row_event(on_class=models.Transfer, calling=fn_default_transfer)
 
-    Rule.commit_row_event(on_class=models.Transfer, calling=fn_transfer_funds)
+    Rule.row_event(on_class=models.Transfer, calling=fn_transfer_funds)
 
     declare_logic_message = "..logic/declare_logic.py (logic == rules + code)"
     app_logger.debug("..logic/declare_logic.py (logic == rules + code)")

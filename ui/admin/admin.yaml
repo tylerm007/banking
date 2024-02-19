@@ -100,10 +100,8 @@ resources:
       type: DATE
     - name: RegistrationDate
     - name: UserName
-      required: true
     - name: CustomerID
     - name: Password
-      required: true
     tab_groups:
     - direction: tomany
       fks:
@@ -129,6 +127,7 @@ resources:
       required: true
     - name: BirthDate
     - name: Photo
+      type: Image
     - name: Notes
     - name: EmployeeID
     tab_groups:
