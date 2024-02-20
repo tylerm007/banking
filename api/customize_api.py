@@ -211,7 +211,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
     def api_search(path):
         s = path.split("/")
         clz_name = s[0]
-        clz_type = s[1] #[2] TODO customerType search advancedSearch defer(photo)
+        clz_type = s[1] #[2] TODO customerType search advancedSearch defer(photo)customerTypeAggregate
         api_clz = api_map.get(clz_name)
         payload = json.loads(request.data)
         filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
@@ -231,26 +231,47 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             else:
                 #GET (sent as POST)
                 #rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
-                rows = get_rows(request, api_clz, filter, orderBy, columns, pagesize, offset)
-                return rows
+                if "TypeAggregate" in clz_type:
+                    return get_rows_agg(request, api_clz, filter, columns)
+                else:
+                    return get_rows(request, api_clz,filter, orderBy, columns, pagesize, offset)
                 
         session.execute(stmt)
         session.commit()
         return jsonify({f"{method}":True})
 
-
-    def get_rows(request: any, api_clz, filter, order_by, columns, pagesize, offset):
-        # New Style
+    def get_rows_agg(request: any, api_clz, filter, columns):
+        from sqlalchemy import func
         resources = getMetaData(api_clz.__name__)
         attributes = resources["resources"][api_clz.__name__]["attributes"]
-        list_of_columns = []
+        list_of_columns = ""
+        sep = ""
         attr_list = list(api_clz._s_columns)
+        table_name = api_clz._s_type
         #api_clz.__mapper__.attrs #TODO map the columns to the attributes to build the select list
         for a in attributes:
             name = a["name"]
             t = a["type"] #INTEGER or VARCHAR(N)
             #list_of_columns.append(api_clz._sa_class_manager.get(n))
             attr = a["attr"]
+            #MAY need to do upper case compares
+            if name in columns:
+                list_of_columns = f'{list_of_columns}{sep}{name}'
+                sep = ","
+        sql = f' count(*), {list_of_columns} from {table_name} group by {list_of_columns}'
+        print(sql)
+        #rows = session.query(text(sql)).all()
+        rows = session.query(models.Account.AccountType,func.count(models.Account.AccountID)).group_by(models.Account.AccountType).all()
+        return jsonify(rows)
+    
+    def get_rows(request: any, api_clz, filter, order_by, columns, pagesize, offset):
+        # New Style
+        resources = getMetaData(api_clz.__name__)
+        attributes = resources["resources"][api_clz.__name__]["attributes"]
+        list_of_columns = []
+        for a in attributes:
+            name = a["name"]
+            t = a["type"] #INTEGER or VARCHAR(N)
             #MAY need to do upper case compares
             if name in columns:
                 list_of_columns.append(name)

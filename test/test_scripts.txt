@@ -2,7 +2,7 @@
 curl -X POST http://localhost:5656/services/rest/employees/employee/advancedsearch -d '{"filter":{},"columns":["EmployeeID","FirstName","LastName","Address","Branch","Photo"],"sqltypes":{},"offset":0,"pageSize":16,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
 
 #GET as POST customer
-curl -X POST http://localhost:5656/services/rest/customers/customer/advancedsearch -d  '{"filter":{},"columns":["CustomerID","FirstName","LastName","Address","STARTDATE","Email"],"sqltypes":{"STARTDATE":93},"offset":0,"pageSize":25,"orderBy":[{"columnName":"LastName","ascendent":true}]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
+curl -X POST http://localhost:5656/services/rest/customers/customer/advancedsearch -d  '{"filter":{},"columns":["CustomerID","FirstName","LastName","Address","Email"],"sqltypes":{"STARTDATE":93},"offset":0,"pageSize":25,"orderBy":[{"columnName":"LastName","ascendent":true}]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
 
 #GET as POST account AccountID=1000
 curl -X POST http://localhost:5656/services/rest/accounts/account -d  '{"filter":{"AccountID": 1000},"columns":["Customer","AccountType","AcctBalance"],"sqltypes":{"OpenDate":93},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
@@ -18,3 +18,6 @@ curl -X PUT http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"
 
 #DELETE
 curl -X DELETE http://localhost:5656/services/rest/accounttypes/accounttype -d  '{"filter":{"Name": "Investment"},"columns":[],"sqltypes":{"Name":12},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'
+
+#AggregateType Account
+curl -X POST http://localhost:5656/services/rest/accounts/accountTypeAggregate/search  -d  '{"filter":{},"columns":["AccountType"],"sqltypes":{},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'

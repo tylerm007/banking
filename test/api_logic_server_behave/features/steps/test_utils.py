@@ -33,8 +33,8 @@ if os.getenv('SECURITY_ENABLED'):  # e.g. export SECURITY_ENABLED=true
     else:
         SECURITY_ENABLED = True
 
-def login(user: str = 'aneu'):
-    """ login (default aneu), return header with token
+def login(user: str = 'admin'):
+    """ login (default admin), return header with token
 
     Raises:
         Exception: _description_
@@ -47,7 +47,7 @@ def login(user: str = 'aneu'):
         return {}
     else:
         post_uri = 'http://localhost:5656/api/auth/login'
-        post_data = {"username": user, "password": "p"}
+        post_data = {"username": user, "password": "password"}
         r = requests.post(url=post_uri, json = post_data)
         response_text = r.text
         status_code = r.status_code

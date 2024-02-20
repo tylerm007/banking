@@ -147,47 +147,50 @@ def declare_logic():
             pass
             
         from_trans = logic_row.new_logic_row(models.Transaction)
-        from_trans.TransactionID = len(transactions) + 2
-        from_trans.AccountID = fromAcctId
-        from_trans.Withdrawl = amount
-        from_trans.TransactionType = "Transfer From"
-        from_trans.TransactionDate = date.today()
+        from_trans.row.TransactionID = len(transactions) + 2
+        from_trans.row.AccountID = fromAcctId
+        from_trans.row.Withdrawl = amount
+        from_trans.row.TransactionType = "Withdrawal"
+        from_trans.row.TransactionDate = date.today()
         from_trans.insert(reason="Transfer From")
         
         to_trans = logic_row.new_logic_row(models.Transaction)
-        to_trans.TransactionID = len(transactions) + 3
-        to_trans.AccountID = toAcctId
-        to_trans.Deposit = amount
-        to_trans.TransactionType = "Transfer To"
-        to_trans.TransactionDate = date.today()
+        to_trans.row.TransactionID = len(transactions) + 3
+        to_trans.row.AccountID = toAcctId
+        to_trans.row.Deposit = amount
+        to_trans.row.TransactionType = "Deposit"
+        to_trans.row.TransactionDate = date.today()
         to_trans.insert(reason="Transfer To")
+        
+        logic_row.log("Funds transferred successfully!")
+
+    def send_kafka_message(row: models.Transfer, old_row: models.Transfer, logic_row:LogicRow):
+        if logic_row.ins_upd_dlt != "ins":
+            return
         producer : Producer = None
         if kafka_producer.producer:
             try:
                 producer = kafka_producer.producer
                 value = {
                     "transactionID": row.TransactionID,
-                    "transactionDate": date.today(),
-                    "customerID": to_account.CustomerID,
-                    "fromAcct": fromAcctId,
-                    "toAcct": toAcctId,
-                    "amount": amount
+                    "transactionDate": str(date.today()),
+                    "customerId": row.Account.CustomerID,
+                    "fromAcct": row.FromAccountID,
+                    "toAcct": row.ToAccountID,
+                    "amount": row.Amount
                 }
-                json_order_response = jsonify({"transfer": value})
-                json_transfer = json_order_response.data.decode('utf-8')
-                producer.produce(value=json_transfer, topic="transfer_funds", key=row.TransactionID)
+                json_value = json.dumps(value).encode('utf-8')
+                producer.produce(value=json_value, topic="transfer_funds", key=row.TransactionID)
             except KafkaException as ke:
                 logic_row.log("kafka_producer#kafka_message error: {ke}") 
-        
-        logic_row.log("Funds transferred successfully!")
-
+                
     Rule.early_row_event(on_class=models.Customer, calling=fn_default_customer)
     Rule.early_row_event(on_class=models.Account, calling=fn_default_account)
     Rule.early_row_event(on_class=models.Transaction, calling=fn_default_transaction)
     Rule.early_row_event(on_class=models.Transfer, calling=fn_default_transfer)
 
-    Rule.row_event(on_class=models.Transfer, calling=fn_transfer_funds)
-
+    Rule.commit_row_event(on_class=models.Transfer, calling=fn_transfer_funds)
+    #Rule.after_flush_row_event(on_class=models.Transfer,calling=send_kafka_message)
     declare_logic_message = "..logic/declare_logic.py (logic == rules + code)"
     app_logger.debug("..logic/declare_logic.py (logic == rules + code)")
 

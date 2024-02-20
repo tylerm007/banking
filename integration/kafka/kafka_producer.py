@@ -46,7 +46,7 @@ def kafka_producer():
 
 
 def send_kafka_message(logic_row: LogicRow, row_dict_mapper: RowDictMapper, 
-                       kafka_topic: str, kafka_key: str, msg: str=""):
+                        kafka_topic: str, kafka_key: str, msg: str=""):
     """ Send Kafka message regarding logic_row, mapped by row_dict_mapper
 
     * Typically called from declare_logic event

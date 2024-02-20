@@ -1,0 +1,46 @@
+Feature: About Sample # features/about.feature:6
+
+  Scenario: Transaction Processing                           # features/about.feature:8
+    Given Sample Database                                    # features/steps/about.py:6
+    When Transactions are submitted                          # features/steps/about.py:11
+    Then Enforce business policies with Logic (rules + code) # features/steps/about.py:16
+
+Feature: API GET Testing # features/api_get.feature:2
+
+  Scenario: GET Customer Endpoint  # features/api_get.feature:4
+    Given GET Customer endpoint    # features/steps/api_get.py:26
+    When GET Customer API          # features/steps/api_get.py:30
+    Then Customer retrieved        # features/steps/api_get.py:34
+
+  Scenario: GET Branch Endpoint  # features/api_get.feature:9
+    Given GET Branch endpoint    # features/steps/api_get.py:39
+    When GET Branch API          # features/steps/api_get.py:43
+    Then Branch retrieved        # features/steps/api_get.py:47
+
+  Scenario: GET AccountType Endpoint  # features/api_get.feature:14
+    Given GET AccountType endpoint    # features/steps/api_get.py:52
+    When GET AccountType API          # features/steps/api_get.py:56
+    Then AccountType retrieved        # features/steps/api_get.py:60
+
+  Scenario: GET Account Endpoint  # features/api_get.feature:19
+    Given GET Account endpoint    # features/steps/api_get.py:65
+    When GET Account API          # features/steps/api_get.py:69
+    Then Account retrieved        # features/steps/api_get.py:73
+
+  Scenario: GET Transfer Endpoint  # features/api_get.feature:24
+    Given GET Transfer endpoint    # features/steps/api_get.py:78
+    When GET Transfer API          # features/steps/api_get.py:82
+    Then Transfer retrieved        # features/steps/api_get.py:86
+
+  Scenario: GET Employee Endpoint  # features/api_get.feature:29
+    Given GET Employee endpoint    # features/steps/api_get.py:91
+    When GET Employee API          # features/steps/api_get.py:95
+    Then Employee retrieved        # features/steps/api_get.py:99
+
+  Scenario: GET Transaction Endpoint  # features/api_get.feature:34
+    Given GET Transaction endpoint    # features/steps/api_get.py:104
+    When GET Transaction API          # features/steps/api_get.py:108
+    Then Transaction retrieved        # features/steps/api_get.py:112
+
+&nbsp;&nbsp;
+/Users/tylerband/dev/ApiLogicServer/banking/test/api_logic_server_behave/behave_run.py completed at February 20, 2024 10:16:20
