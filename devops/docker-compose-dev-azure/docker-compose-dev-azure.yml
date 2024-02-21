@@ -5,11 +5,11 @@ version: "3.5"
 services:
 
     api-logic-server:
-        image: apilogicserver/banking2
+        image: apilogicserver/banking
         environment:
           - APILOGICPROJECT_VERBOSE=true
           - SECURITY_ENABLED=true
-          - APILOGICPROJECT_CLIENT_URI=//banking2.azurewebsites.net
+          - APILOGICPROJECT_CLIENT_URI=//banking.azurewebsites.net
           # - APILOGICPROJECT_HTTP_SCHEME=https
           - PYTHONPATH=/app/ApiLogicProject 
           ## TODO: verify Database uri's here, 

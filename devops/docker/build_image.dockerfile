@@ -4,7 +4,7 @@
 FROM apilogicserver/api_logic_server  
 
 USER root
-
+RUN pip install confluent_kafka
 # user api_logic_server comes from apilogicserver/api_logic_server
 WORKDIR /home/api_logic_project
 USER api_logic_server

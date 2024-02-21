@@ -2,8 +2,8 @@
 
 # intended for use in portal cli - not to be run on your local machine.
 
-projectname="banking2"  # lower case, only
-resourcegroup="banking2_rg"
+projectname="banking"  # lower case, only
+resourcegroup="banking_rg"
 dockerrepositoryname="apilogicserver"  # change this to your DockerHub Repository
 githubaccount="apilogicserver"         # change this to your GitHub account
 version="1.0.0"
@@ -13,8 +13,8 @@ version="1.0.0"
 # which uses: https://github.com/Azure-Samples/multicontainerwordpress
 
 # login to Azure Portal CLI (substitute your github account for apilogicserver)
-# git clone https://github.com/apilogicserver/banking2.git
-# cd banking2
+# git clone https://github.com/apilogicserver/banking.git
+# cd banking
 # sh devops/docker-compose-dev-azure/azure-deploy.sh
 
 echo " "
@@ -76,7 +76,7 @@ az group create --name $resourcegroup --location "westus"
 az appservice plan create --name myAppServicePlan --resource-group $resourcegroup --sku S1 --is-linux
 
 # create docker compose app
-az webapp create --resource-group $resourcegroup --plan myAppServicePlan --name banking2 --multicontainer-config-type compose --multicontainer-config-file devops/docker-compose-dev-azure/docker-compose-dev-azure.yml
+az webapp create --resource-group $resourcegroup --plan myAppServicePlan --name banking --multicontainer-config-type compose --multicontainer-config-file devops/docker-compose-dev-azure/docker-compose-dev-azure.yml
 
 set +x # reset echo
 

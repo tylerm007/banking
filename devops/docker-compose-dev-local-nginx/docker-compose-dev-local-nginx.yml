@@ -12,7 +12,7 @@ version: "3.5"
 
 services:
     api-logic-server:
-        image: apilogicserver/banking2
+        image: apilogicserver/banking
         # instead using a built image, uncomment the following to build the image dynamically
         # build:
         #     context: ../..

@@ -229,8 +229,8 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
     }
     
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
-    @app.route("/ontimizeweb/services/qsallcomponents-jee/services/rest/<path:path>", methods=['POST','PUT','DELETE','OPTIONS'])
-    @app.route("/services/rest/<path:path>", methods=['POST','PUT','DELETE','OPTIONS'])
+    @app.route("/ontimizeweb/services/qsallcomponents-jee/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
+    @app.route("/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
     @admin_required() 
     @cross_origin(supports_credentials=True,origins="*",vary_header=True)
     def api_search(path):
@@ -245,7 +245,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         if method == "OPTIONS":
             return jsonify({"success":"ok"})
         
-        if method == 'PUT':
+        if method in ['PUT','PATCH']:
             stmt = update(api_clz).where(text(filter)).values(data)
             
         if method == 'DELETE':
@@ -404,25 +404,15 @@ def rows_to_dict(result: any) -> list:
     return rows
 
 class TransferFunds(safrs.JABase):
-    """
-    Args:
-        safrs (_type_): _description_
-
-    Raises:
-        requests.RequestException: _description_
-
-    Returns:
-        _type_: "Transfer Completed...."
-    """
     @classmethod
     @jsonapi_rpc(http_methods=["POST"])
-    def transfer_funds(cls, *args, **kwargs):
+    def transfer(cls, *args, **kwargs):
         """ # yaml creates Swagger description
             args :
-                customer_id: 1
-                fromAcctId: 2000
-                toAcctId: 1000 
-                amount: 10
+                CustomerId: 1
+                FromAcctId: 8
+                ToAcctId: 7 
+                Amount: 10
         """
         db = safrs.DB         # Use the safrs.DB, not db!
         session = db.session  # sqlalchemy.orm.scoping.scoped_session
@@ -432,39 +422,33 @@ class TransferFunds(safrs.JABase):
         customerId = payload.customer_id
         transactions = session.query(models.Transaction).all() #TODO where(CustomerID = N)
         try:
-            from_account = session.query(models.Account).filter(models.Account.AccountID == payload.fromAcctId).one()
+            from_account = session.query(models.Account).filter(models.Account.AccountID == payload.FromAcctId).one()
         except Exception as ex:
             raise requests.RequestException(
-                f"From Account {payload.fromAcctId} not found"
+                f"From Account {payload.FromAcctId} not found"
             ) from ex
         from_trans = models.Transaction()
-        from_trans.TransactionID = len(transactions) + 1
-        from_trans.AccountID = payload.fromAcctId
-        from_trans.Withdrawl = payload.amount
-        from_trans.TransactionType = "Transfer"
-        from_trans.Deposit = 0
-        from_trans.TotalAmount = 0
+        from_trans.TransactionID = len(transactions) + 2
+        from_trans.AccountID = payload.FromAcctId
+        from_trans.Withdrawl = payload.Amount
+        from_trans.TransactionType = "Withdrawal"
         from_trans.TransactionDate = date.today()
         session.add(from_trans)
-        session.flush()
+
         try:
-            to_account = session.query(models.Account).filter(models.Account.AccountID == payload.toAcctId).one()
+            to_account = session.query(models.Account).filter(models.Account.AccountID == payload.ToAcctId).one()
         except Exception as ex:
             raise requests.RequestException(
-                f"To Account {payload.toAcctId} not found"
+                f"To Account {payload.ToAcctId} not found"
             ) from ex
             
         to_trans = models.Transaction()
-        to_trans.TransactionID = len(transactions) + 2
-        to_trans.AccountID = payload.toAcctId
-        to_trans.Deposit = payload.amount
-        to_trans.TransactionType = "Transfer"
-        to_trans.Withdrawl = 0
-        to_trans.TotalAmount = 0
+        to_trans.TransactionID = len(transactions) + 3
+        to_trans.AccountID = payload.ToAcctId
+        to_trans.Deposit = payload.Amount
+        to_trans.TransactionType = "Deposit"
         to_trans.TransactionDate = date.today()
         session.add(to_trans)
-        session.flush()
-        
         session.commit()
         
-        return {f"Transfer Completed amount: {payload.amount} from acct: {payload.fromAcctId} to acct: {payload.toAcctId}"} 
+        return {f"Transfer Completed amount: {payload.Amount} from acct: {payload.FromAcctId} to acct: {payload.ToAcctId}"} 

@@ -30,7 +30,7 @@ services:
             - '3306'
 
     api-logic-server:
-        image: apilogicserver/banking2
+        image: apilogicserver/banking
         environment:
           - APILOGICPROJECT_VERBOSE=true
           - SECURITY_ENABLED=true

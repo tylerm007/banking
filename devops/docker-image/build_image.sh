@@ -9,7 +9,7 @@
 #    $ cd <your project>
 #    $ sh devops/docker-image/build_image.sh .
 
-projectname="banking2"  # lower case, only
+projectname="banking"  # lower case, only
 repositoryname="apilogicserver"
 version="1.0.0"
 

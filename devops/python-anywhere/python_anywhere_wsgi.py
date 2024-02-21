@@ -104,7 +104,7 @@ import sys
 ## "git clone git@github.com/myusername/myproject.git"
 ## ...or uploaded files to the directory "myproject", then you should
 ## specify "/home/ApiLogicServer/myproject"
-path = '/Users/tylerband/dev/ApiLogicServer/banking2'  # updated in creation process
+path = '/Users/tylerband/dev/ApiLogicServer/banking'  # updated in creation process
 if path not in sys.path:
     sys.path.append(path)
 #
