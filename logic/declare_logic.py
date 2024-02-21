@@ -175,12 +175,12 @@ def declare_logic():
                     "transactionID": row.TransactionID,
                     "transactionDate": str(date.today()),
                     "customerId": row.Account.CustomerID,
-                    "fromAcct": row.FromAccountID,
-                    "toAcct": row.ToAccountID,
-                    "amount": row.Amount
+                    "fromAcctId": row.FromAccountID,
+                    "toAcctId": row.ToAccountID,
+                    "amount": int(row.Amount)
                 }
-                json_value = json.dumps(value).encode('utf-8')
-                producer.produce(value=json_value, topic="transfer_funds", key=row.TransactionID)
+                json_value = json.dumps(value)
+                producer.produce(value=json_value, topic="transfer_funds", key=str(row.TransactionID))
             except KafkaException as ke:
                 logic_row.log("kafka_producer#kafka_message error: {ke}") 
                 
@@ -190,7 +190,7 @@ def declare_logic():
     Rule.early_row_event(on_class=models.Transfer, calling=fn_default_transfer)
 
     Rule.commit_row_event(on_class=models.Transfer, calling=fn_transfer_funds)
-    #Rule.after_flush_row_event(on_class=models.Transfer,calling=send_kafka_message)
+    Rule.after_flush_row_event(on_class=models.Transfer,calling=send_kafka_message)
     declare_logic_message = "..logic/declare_logic.py (logic == rules + code)"
     app_logger.debug("..logic/declare_logic.py (logic == rules + code)")
 

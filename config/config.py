@@ -138,12 +138,12 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PROPAGATE_EXCEPTIONS = False
 
-    KAFKA_PRODUCER = '{"bootstrap.servers": "localhost:9092"}'  #  , "client.id": "aaa.b.c.d"}'
-    #KAFKA_PRODUCER = None  # comment out to enable Kafka producer
-    KAFKA_CONSUMER = '{"bootstrap.servers": "localhost:9092", "group.id": "als-default-group1"}'
-    #KAFKA_CONSUMER = None  # comment out to enable Kafka consumer
+    #KAFKA_PRODUCER = '{"bootstrap.servers": "localhost:9092"}'  #  , "client.id": "aaa.b.c.d"}'
+    KAFKA_PRODUCER = None  # comment out to enable Kafka producer
+    #KAFKA_CONSUMER = '{"bootstrap.servers": "localhost:9092", "group.id": "als-default-group1"}'
+    KAFKA_CONSUMER = None  # comment out to enable Kafka consumer
 
-    OPT_LOCKING = "optional"
+    OPT_LOCKING = "required"
     if os.getenv('OPT_LOCKING'):  # e.g. export OPT_LOCKING=required
         opt_locking_export = os.getenv('OPT_LOCKING')  # type: ignore # type: str
         opt_locking = opt_locking_export.lower()  # type: ignore

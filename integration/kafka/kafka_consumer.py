@@ -55,7 +55,7 @@ def kafka_consumer(safrs_api: safrs.SAFRSAPI = None):
 
 
     @bus.handle('transfer_funds')
-    def order_shipping(msg: object, safrs_api: safrs.SAFRSAPI):
+    def transfer_funds(msg: object, safrs_api: safrs.SAFRSAPI):
         """
         Defining this annotated method:
 
@@ -70,22 +70,11 @@ def kafka_consumer(safrs_api: safrs.SAFRSAPI = None):
         message_data = msg.value().decode("utf-8")
         message_id = msg.key()
         msg_dict = json.loads(message_data)
-        #order_dict = msg_dict['order']
+    
         logger.debug(f' * Processing message - id: {message_id} msg_dict: {str(msg_dict)}')
-
-        with safrs_api.app.app_context():
-            db = safrs.DB         # Use the safrs.DB, not db!
-            session = db.session  # sqlalchemy.orm.scoping.scoped_session
-
-            #order_b2b_def = OrderToShip()
-            #sql_alchemy_row = order_b2b_def.dict_to_row(row_dict = order_dict, session = session)
-
-            #session.add(sql_alchemy_row)
-            #session.commit()
-            #logger.debug(f' * processing completed - id: {message_id} msg_dict: {str(order_dict)}')
-            logger.debug(' * sql_alchemy_row  transfer_funds:') # {sql_alchemy_row}, CustomerID: {sql_alchemy_row.Customer.CustomerID}, Customer.Balance: {sql_alchemy_row.Customer.Balance}
-
-        logger.debug(f' * kafka_consumer#order_shipping completed\n')
+        # send email or push to notify customer
+        
+        logger.debug(f' * kafka_consumer#funds_transfer completed\n')
 
 
     @bus.handle('another_topic')

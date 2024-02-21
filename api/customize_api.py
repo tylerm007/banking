@@ -1,7 +1,12 @@
+from functools import wraps
 import logging
+import yaml
+from pathlib import Path
+from flask_cors import cross_origin
 import util
 import safrs
 from flask import request, jsonify
+from flask_jwt_extended import get_jwt, jwt_required, verify_jwt_in_request
 from safrs import jsonapi_rpc
 from database import models
 import json
@@ -10,6 +15,7 @@ from sqlalchemy.orm import load_only
 import sqlalchemy
 import requests
 from datetime import date
+from config.config import Args
 
 # called by api_logic_server_run.py, to customize api (new end points, services).
 # separate from expose_api_models.py, to simplify merge if project recreated
@@ -47,6 +53,22 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
 
         See: https://github.com/thomaxxl/safrs/wiki/Customization
         """
+    def admin_required():
+        """
+        Support option to bypass security (see cats, below).
+
+        See: https://flask-jwt-extended.readthedocs.io/en/stable/custom_decorators/
+        """
+        def wrapper(fn):
+            @wraps(fn)
+            def decorator(*args, **kwargs):
+                if Args.security_enabled == False:
+                    return fn(*args, **kwargs)
+                verify_jwt_in_request(True)  # must be issued if security enabled
+                #clientId = jwt[1].get('clientId', -1)
+                return fn(*args, **kwargs)
+            return decorator
+        return wrapper
         user = request.args.get('user')
         return jsonify({"result": f'hello, {user}'})
 
@@ -207,7 +229,10 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
     }
     
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
-    @app.route("/services/rest/<path:path>", methods=['POST','PUT','DELETE'])
+    @app.route("/ontimizeweb/services/qsallcomponents-jee/services/rest/<path:path>", methods=['POST','PUT','DELETE','OPTIONS'])
+    @app.route("/services/rest/<path:path>", methods=['POST','PUT','DELETE','OPTIONS'])
+    @admin_required() 
+    @cross_origin(supports_credentials=True,origins="*",vary_header=True)
     def api_search(path):
         s = path.split("/")
         clz_name = s[0]
@@ -217,6 +242,9 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
         method = request.method
         rows = []
+        if method == "OPTIONS":
+            return jsonify({"success":"ok"})
+        
         if method == 'PUT':
             stmt = update(api_clz).where(text(filter)).values(data)
             
@@ -227,7 +255,6 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             if data != None:
                 #this is an insert
                 stmt = insert(api_clz).values(data)
-                
             else:
                 #GET (sent as POST)
                 #rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)

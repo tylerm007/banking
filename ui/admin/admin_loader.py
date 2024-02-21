@@ -161,6 +161,12 @@ def admin_events(flask_app: Flask, args: Args, validation_error: ValidationError
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE, PATCH"
         response.headers["Access-Control-Allow-Headers"] = \
-            "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"
+            "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token,  X-Requested-With, X-Auth-Token, Authorization"
+        response.headers["Access-Control-Expose-Headers"] = "X-Auth-Token, Content-disposition, X-Requested-With"
         # admin_logger.debug(f'cors after_request - response: {str(response)}')
+        # This is a short cut to auto login to Ontimize
+        from security.system.authentication import access_token
+        if access_token:
+            response.headers["X-Auth-Token"] = access_token
+
         return response
