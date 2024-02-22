@@ -10,6 +10,7 @@ import logging
 from datetime import date
 import safrs
 import json
+import requests
 from flask import request, jsonify
 from confluent_kafka import Producer, KafkaException
 import integration.kafka.kafka_producer as kafka_producer
@@ -85,6 +86,7 @@ def declare_logic():
             # Find and transfer funds from "Loan"
             #1) find loan account if exists
             #2) if loanAcct.AcctBalance > overdraft then transfer funds
+            #3) If not found - then raise exception "Overdraft not allowed"
     
     Rule.commit_row_event(on_class=models.Account,calling=fn_overdraft)
     
