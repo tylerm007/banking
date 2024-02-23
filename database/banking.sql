@@ -23,16 +23,23 @@ DROP TABLE IF EXISTS `Account`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Account` (
-  `AccountID` int NOT NULL AUTO_INCREMENT,
-  `CustomerID` int DEFAULT NULL,
-  `AccountType` varchar(25) DEFAULT NULL,
-  `AcctBalance` decimal(15,2) DEFAULT 0,
-  `OpenDate` datetime DEFAULT NULL,
-  PRIMARY KEY (`AccountID`),
-  KEY `CustomerID` (`CustomerID`),
+  `ACCOUNTID` int NOT NULL AUTO_INCREMENT,
+  `CUSTOMERID` int DEFAULT NULL,
+  `ACCOUNTTYPEID` int DEFAULT NULL,
+  `ACCOUNTTYPENAME` VARCHAR(25),
+  `BALANCE` decimal(15,2) DEFAULT 0,
+  `STARTDATE` datetime DEFAULT NULL,
+  `ENDDATE` datetime DEFAULT NULL,
+  `ENTITYID` int DEFAULT 1,
+  `OFFICEID` int DEFAULT 1,
+  `CDID` VARCHAR(25),
+  `ANID` VARCHAR(25),
+  `INTERESRATE` decimal(15,2) DEFAULT 0,
+  PRIMARY KEY (`ACCOUNTID`),
+  KEY `CUSTOMERID` (`CUSTOMERID`),
   KEY `Account_fk2` (`AccountType`),
-  CONSTRAINT `Account_fk2` FOREIGN KEY (`AccountType`) REFERENCES `AccountType` (`Name`),
-  CONSTRAINT `Account_ibfk_1` FOREIGN KEY (`CustomerID`) REFERENCES `Customer` (`CustomerID`)
+  CONSTRAINT `AccountTypeFK` FOREIGN KEY (`ACCOUNTTYPEID`) REFERENCES `AccountType` (`AcctID`),
+  CONSTRAINT `CustomerHasAccountFK` FOREIGN KEY (`CUSTOMERID`) REFERENCES `Customer` (`CUSTOMERID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -42,7 +49,6 @@ CREATE TABLE `Account` (
 
 LOCK TABLES `Account` WRITE;
 /*!40000 ALTER TABLE `Account` DISABLE KEYS */;
-INSERT INTO `Account` VALUES (2,1,'Checking',200.00,'2024-02-17 12:51:47'),(4,1,'Savings',400.00,'2024-02-17 12:55:50');
 /*!40000 ALTER TABLE `Account` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -54,9 +60,10 @@ DROP TABLE IF EXISTS `AccountType`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `AccountType` (
-  `Name` varchar(25) NOT NULL,
-  PRIMARY KEY (`Name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `AcctID` int NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(25) NOT NULL,
+  PRIMARY KEY (`AcctID`)
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +72,7 @@ CREATE TABLE `AccountType` (
 
 LOCK TABLES `AccountType` WRITE;
 /*!40000 ALTER TABLE `AccountType` DISABLE KEYS */;
-INSERT INTO `AccountType` VALUES ('Checking'),('Loan'),('Savings');
+-- INSERT INTO `AccountType` ('AcctID','Name') VALUES (1,'Checking'),(2, 'Loan'),(3,'Savings');
 /*!40000 ALTER TABLE `AccountType` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -77,12 +84,11 @@ DROP TABLE IF EXISTS `Branch`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Branch` (
-  `BranchID` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(100) DEFAULT NULL,
-  `Office` varchar(15) DEFAULT NULL,
-  `Address` varchar(100) DEFAULT NULL,
-  `OpenDate` datetime DEFAULT NULL,
-  PRIMARY KEY (`BranchID`)
+  `OFFICEID` int NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(100) DEFAULT NULL,
+  `ADDRESS` varchar(100) DEFAULT NULL,
+  `STARTDATE` datetime DEFAULT NULL,
+  PRIMARY KEY (`BRANCHID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -92,7 +98,6 @@ CREATE TABLE `Branch` (
 
 LOCK TABLES `Branch` WRITE;
 /*!40000 ALTER TABLE `Branch` DISABLE KEYS */;
-INSERT INTO `Branch` VALUES (1,'Main','MainOffice','1 Main','2024-02-17 11:35:12'),(15,'Remote','RemoteOffice','Remoteville','2024-02-17 11:35:45');
 /*!40000 ALTER TABLE `Branch` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -104,20 +109,16 @@ DROP TABLE IF EXISTS `Customer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Customer` (
-  `CustomerID` int NOT NULL AUTO_INCREMENT,
-  `FirstName` varchar(50) DEFAULT NULL,
-  `LastName` varchar(50) DEFAULT NULL,
-  `Email` varchar(100) DEFAULT NULL,
-  `PhoneNumber` varchar(20) DEFAULT NULL,
-  `Address` varchar(200) DEFAULT NULL,
-  `BirthDate` date DEFAULT NULL,
-  `RegistrationDate` datetime DEFAULT NULL,
-  `UserName` varchar(64),
-  `Password` varchar(64),
-  `BranchID` int DEFAULT 1,
-  PRIMARY KEY (`CustomerID`),
-  KEY `fk_Customer_Branch` (`BranchID`),
-  CONSTRAINT `fk_Customer_Branch` FOREIGN KEY (`BranchID`) REFERENCES `Branch` (`BranchID`)
+  `CUSTOMERID` int NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(75) DEFAULT NULL,
+  `SURNAME` varchar(75) DEFAULT NULL,
+  `EMAIL` varchar(100) DEFAULT NULL,
+  `ADDRESS` varchar(200) DEFAULT NULL,
+  `STARTDATE` date DEFAULT CURRENT_DATE,
+  `BRANCHID` int DEFAULT 1,
+  PRIMARY KEY (`CUSTOMERID`),
+  KEY `fk_Customer_Branch` (`BRANCHID`),
+  CONSTRAINT `CustomerInBranchFK` FOREIGN KEY (`BRANCHID`) REFERENCES `Branch` (`BRANCHID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -127,7 +128,6 @@ CREATE TABLE `Customer` (
 
 LOCK TABLES `Customer` WRITE;
 /*!40000 ALTER TABLE `Customer` DISABLE KEYS */;
-INSERT INTO `Customer` VALUES (1,'Main','Customer',NULL,NULL,NULL,NULL,'2024-02-17 00:00:00','valued-customer','p',14),(2,'Remote','Customer',NULL,NULL,NULL,NULL,'2024-02-17 00:00:00','another-customer','p',1);
 /*!40000 ALTER TABLE `Customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -139,16 +139,19 @@ DROP TABLE IF EXISTS `Employees`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Employees` (
-  `EmployeeID` int NOT NULL AUTO_INCREMENT,
-  `LastName` varchar(15) NOT NULL,
-  `FirstName` varchar(15) NOT NULL,
-  `Branch` int DEFAULT '1',
-  `BirthDate` datetime DEFAULT NULL,
-  `Photo` varchar(25) DEFAULT NULL,
-  `Notes` varchar(1024) DEFAULT NULL,
-  PRIMARY KEY (`EmployeeID`),
+  `EMPLOYEEID` int NOT NULL AUTO_INCREMENT,
+  `EMPLOYEETYPEID` int DEFAULT 1,
+  `EMPLOYEESURNAME` varchar(15) NOT NULL,
+  `EMPLOYEENAME` varchar(15) NOT NULL,
+  `OFFICEID` int DEFAULT '1',
+  `EMPLOYEEADDRESS` VARCHAR(100) DEFAULT NULL,
+  `EMPLOYEESTARTDATE` datetime DEFAULT CURRENT_DATE,
+  `EMPLOYEEPHOTOTO` BLOB DEFAULT NULL,
+  `NAME` varchar(100) DEFAULT NULL,
+  `EMPLOYEEPHONE` VARCHAR(50) DEFAULT NULL,
+  PRIMARY KEY (`EMPLOYEEID`),
   KEY `fk_Employee_Branch` (`Branch`),
-  CONSTRAINT `fk_Employee_Branch` FOREIGN KEY (`Branch`) REFERENCES `Branch` (`BranchID`)
+  CONSTRAINT `EmployeeWorksInBranch` FOREIGN KEY (`OFFICEID`) REFERENCES `Branch` (`BRANCHID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -158,7 +161,6 @@ CREATE TABLE `Employees` (
 
 LOCK TABLES `Employees` WRITE;
 /*!40000 ALTER TABLE `Employees` DISABLE KEYS */;
-INSERT INTO `Employees` VALUES (19,'Employee-Main','Joe',1,NULL,NULL,NULL),(20,'Employee-Remote','Mary',1,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `Employees` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -209,8 +211,8 @@ CREATE TABLE `Transfer` (
   PRIMARY KEY (`TransactionID`),
   KEY `FromAccountID` (`FromAccountID`),
   KEY `ToAccountID` (`ToAccountID`),
-  CONSTRAINT `Transfer_ibfk_1` FOREIGN KEY (`FromAccountID`) REFERENCES `Account` (`AccountID`),
-  CONSTRAINT `Transfer_ibfk_2` FOREIGN KEY (`ToAccountID`) REFERENCES `Account` (`AccountID`)
+  CONSTRAINT `FromAccount` FOREIGN KEY (`FromAccountID`) REFERENCES `Account` (`AccountID`),
+  CONSTRAINT `ToAccount` FOREIGN KEY (`ToAccountID`) REFERENCES `Account` (`AccountID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

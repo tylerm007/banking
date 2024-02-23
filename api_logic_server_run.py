@@ -320,7 +320,12 @@ def api_logic_server_setup(flask_app: Flask, args: Args):
 
 flask_app = Flask("API Logic Server", template_folder='ui/templates')  # templates to load ui/admin/admin.yaml
 
-CORS(flask_app, resources=[{r"/api/*": {"origins": "*"}}], allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials","X-CSRF-Token"], supports_credentials=True)
+CORS(flask_app, resources=[{r"/api/*": {"origins": "*"}}],
+    allow_headers=["Content-Type", "Authorization", "Access-Control-Allow-Credentials","X-CSRF-Token"], 
+    origins="*",
+    max_age=480000,
+    send_wildcard=True,
+    vary_header=True)
 
 
 args = Args(flask_app=flask_app)                                # creation defaults

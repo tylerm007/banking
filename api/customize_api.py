@@ -227,23 +227,25 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         "accounttypes": models.AccountType,
         "transactions": models.Transaction
     }
-    
+    # http://localhost:5656/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
     @app.route("/ontimizeweb/services/qsallcomponents-jee/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
     @app.route("/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
     @admin_required() 
-    @cross_origin(supports_credentials=True,origins="*",vary_header=True)
+    @cross_origin(vary_header=True)
     def api_search(path):
         s = path.split("/")
         clz_name = s[0]
         clz_type = s[1] #[2] TODO customerType search advancedSearch defer(photo)customerTypeAggregate
         api_clz = api_map.get(clz_name)
-        payload = json.loads(request.data)
-        filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
         method = request.method
         rows = []
+        #CORS 
         if method == "OPTIONS":
-            return jsonify({"success":"ok"})
+            return jsonify(success=True)
+        
+        payload = json.loads(request.data)
+        filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
         
         if method in ['PUT','PATCH']:
             stmt = update(api_clz).where(text(filter)).values(data)
@@ -288,11 +290,12 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         sql = f' count(*), {list_of_columns} from {table_name} group by {list_of_columns}'
         print(sql)
         #rows = session.query(text(sql)).all()
-        rows = session.query(models.Account.AccountType,func.count(models.Account.AccountID)).group_by(models.Account.AccountType).all()
+        rows = session.query(models.Account.ACCOUNTTYPEID,func.count(models.Account.AccountID)).group_by(models.Account.ACCOUNTTYPEID).all()
         return jsonify(rows)
     
     def get_rows(request: any, api_clz, filter, order_by, columns, pagesize, offset):
         # New Style
+        key = api_clz.__name__.lower()
         resources = getMetaData(api_clz.__name__)
         attributes = resources["resources"][api_clz.__name__]["attributes"]
         list_of_columns = []
@@ -307,7 +310,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         request.method = 'GET'
         r = CustomEndpoint(model_class=api_clz, fields=list_of_columns, filter_by=filter)
         result = r.execute(request=request)
-        return result
+        return r.transform("IMATIA",key, result)
     
     def get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset):
         #Old Style
@@ -358,8 +361,10 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         for f in filter:
             if f == '@basic_expression':
                 continue
-            q = "'" #TODO use sqltypes for name == a
-            filter_result += f"{a} {f} = {q}{filter[f]}{q}"
+            q = "" if f == "OFFICEID" else "'" #TODO use sqltypes for name == a
+            name = filter[f] #TODO f rename to internal column
+            db_colname = "BranchID" if f == "OFFICEID" else f
+            filter_result += f"{a} {db_colname} = {q}{name}{q}"
             a = " and "
         return None if filter_result == "" else filter_result
         

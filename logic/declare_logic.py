@@ -58,7 +58,7 @@ def declare_logic():
         
     Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
     
-    Rule.sum(derive=models.Account.AcctBalance, 
+    Rule.sum(derive=models.Account.AMOUNT, 
                 as_sum_of=models.Transaction.TotalAmount)
     
     Rule.constraint(validate=models.Account, 

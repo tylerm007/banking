@@ -156,17 +156,27 @@ def admin_events(flask_app: Flask, args: Args, validation_error: ValidationError
         Enable CORS. Disable it if you don't need CORS or install Cors Library
         https://parzibyte.me/blog
         '''
-        response.headers[
-            "Access-Control-Allow-Origin"] = "*"  # <- You can change "*" for a domain for example "http://localhost"
+        #response.headers[  "Access-Control-Allow-Origin"] = "*"  # <- You can change "*" for a domain for example "http://localhost"
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE, PATCH"
-        response.headers["Access-Control-Allow-Headers"] = \
-            "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token,  X-Requested-With, X-Auth-Token, Authorization"
+        #response.headers["Access-Control-Allow-Headers"] = \
+        #    "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token,  X-Requested-With, X-Auth-Token, Authorization"
+            #access-control-allow-origin, authorization, content-type
         response.headers["Access-Control-Expose-Headers"] = "X-Auth-Token, Content-disposition, X-Requested-With"
+        response.headers["Access-Control-Max-Age"] = 63072000
+        response.headers["Strict-Transport-Security"] = "max-age=63072000"
+        response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
+        response.headers["Content-Type"] = "application/json"
+        response.headers["Expires"] = 0
+        response.headers["Pragma"] = "no-cache"
         # admin_logger.debug(f'cors after_request - response: {str(response)}')
         # This is a short cut to auto login to Ontimize
         from security.system.authentication import access_token
         if access_token:
             response.headers["X-Auth-Token"] = access_token
-
+            
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Xss-Protection"] = "1; mode=block"
+        response.headers["X-Frame-Options"] = "DENY"
+        
         return response

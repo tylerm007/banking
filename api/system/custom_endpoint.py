@@ -879,7 +879,10 @@ class CustomEndpoint():
                 newRes.append(r)
             result = newRes
         result = self.move_checksum(json_result)
-        return result if isinstance(result,list) else [result]
+        result if isinstance(result,list) else [result]
+        if style == "IMATIA":
+            result = {"code":0,"message":"","data": result ,"sqlTypes":{}}
+        return result
     
 
     def move_checksum(self, json_dict:any) -> dict:

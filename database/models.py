@@ -68,11 +68,11 @@ class Branch(SAFRSBase, Base):
     _s_collection_name = 'Branch'  # type: ignore
     __bind_key__ = 'None'
 
-    BranchID = Column(Integer, primary_key=True)
-    Name = Column(String(100))
+    OFFICEID = Column("BranchID",Integer, primary_key=True)
+    NAME = Column("Name",String(100))
     Office = Column(String(15))
-    Address = Column(String(100))
-    OpenDate = Column(DateTime)
+    ADDRESS = Column("Address", String(100))
+    STARTDATE = Column("OpenDate", DateTime)
 
     # parent relationships (access parent)
 
@@ -97,14 +97,14 @@ class Customer(SAFRSBase, Base):
     __tablename__ = 'Customer'
     _s_collection_name = 'Customer'  # type: ignore
     __bind_key__ = 'None'
-
-    CustomerID = Column(Integer, primary_key=True)
-    FirstName = Column(String(50))
-    LastName = Column(String(50))
-    Email = Column(String(100))
+    #"CUSTOMERID","NAME","SURNAME","ADDRESS","STARTDATE","EMAIL","CUSTOMERTYPEID"
+    CUSTOMERID = Column("CustomerID", Integer, primary_key=True)
+    NAME = Column("FirstName", String(50))
+    SURNAME = Column("LastName", String(50))
+    EMAIL = Column("Email", String(100))
     PhoneNumber = Column(String(20))
     Address = Column(String(200))
-    BirthDate = Column(Date)
+    STARTDATE = Column("BirthDate",Date, server_default="CURRENT_DATE")
     RegistrationDate = Column(DateTime)
     UserName = Column(String(64))
     Password = Column(String(64))
@@ -133,14 +133,14 @@ class Employee(SAFRSBase, Base):
     __tablename__ = 'Employees'
     _s_collection_name = 'Employee'  # type: ignore
     __bind_key__ = 'None'
-
-    EmployeeID = Column(Integer, primary_key=True)
-    LastName = Column(String(15), nullable=False)
-    FirstName = Column(String(15), nullable=False)
-    Branch = Column(ForeignKey('Branch.BranchID'), server_default=text("'1'"), index=True)
+    #{"OFFICEID":5},"columns":["EMPLOYEEID","EMPLOYEENAME","EMPLOYEESURNAME","EMPLOYEEADDRESS","EMPLOYEESTARTDATE","EMPLOYEEEMAIL"]
+    EMPLOYEEID = Column("EmployeeID", Integer, primary_key=True)
+    EMPLOYEESURNAME = Column("LastName", String(15), nullable=False)
+    EMPLOYEENAME = Column("FirstName", String(15), nullable=False)
+    OFFICEID = Column("Branch", ForeignKey('Branch.BranchID'), server_default=text("'1'"), index=True)
     BirthDate = Column(DateTime)
     Photo = Column(String(25))
-    Notes = Column(String(1024))
+    EMPLOYEEEMAIL = Column("Notes", String(1024))
 
     # parent relationships (access parent)
     Branch1 : Mapped["Branch"] = relationship(back_populates=("EmployeeList"))
@@ -165,10 +165,10 @@ class Account(SAFRSBase, Base):
     _s_collection_name = 'Account'  # type: ignore
     __bind_key__ = 'None'
 
-    AccountID = Column(Integer, primary_key=True)
+    ACCOUNTTYPEID = Column("AccountID", Integer, primary_key=True)
     CustomerID = Column(ForeignKey('Customer.CustomerID'), index=True)
-    AccountType = Column(ForeignKey('AccountType.Name'), index=True)
-    AcctBalance : DECIMAL = Column(DECIMAL(15, 2), server_default="0")
+    ACCOUNTTYPENAME = Column("AccountType", ForeignKey('AccountType.Name'), index=True)
+    AMOUNT : DECIMAL = Column("AcctBalance", DECIMAL(15, 2), server_default="0")
     OpenDate = Column(DateTime)
 
     # parent relationships (access parent)
