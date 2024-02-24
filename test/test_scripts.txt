@@ -5,7 +5,7 @@ curl -X POST http://localhost:5656/services/rest/employees/employee/advancedsear
 curl -X POST http://localhost:5656/services/rest/customers/customer/advancedsearch -d  '{"filter":{},"columns":["CustomerID","FirstName","LastName","Address","Email"],"sqltypes":{"STARTDATE":93},"offset":0,"pageSize":25,"orderBy":[{"columnName":"LastName","ascendent":true}]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
 
 #GET as POST account AccountID=1000
-curl -X POST http://localhost:5656/services/rest/accounts/account -d  '{"filter":{"AccountID": 1000},"columns":["Customer","AccountType","AcctBalance"],"sqltypes":{"OpenDate":93},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
+curl -X POST http://localhost:5656/services/rest/accounts/account -d  '{"filter":{"AccountID": 1000},"columns":["Customer","AccountType","BALANCE"],"sqltypes":{"OpenDate":93},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'|jq
 
 #GET as POST transactions
 curl -X POST http://localhost:5656/services/rest/transactions/transactions -d  '{"filter":{},"columns":[],"sqltypes":{"OpenDate":93},"offset":0,"pageSize":5,"orderBy":[]}' -H 'accept: application/vnd.api+json' -H 'Content-Type: application/json'

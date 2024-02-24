@@ -147,7 +147,7 @@ For information on Managing API Logic Projects, [click here](https://apilogicser
 |:-------------------------|:-----------------------------------|
 | Created                  | February 15, 2024 09:33:45                      |
 | API Logic Server Version | 10.02.04           |
-| Created in directory     | banking2 |
+| Created in directory     | banking |
 | API Name                 | api          |
 | Execution begins with    | `api_logic_server_run.py`          |
 

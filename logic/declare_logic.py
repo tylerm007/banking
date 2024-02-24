@@ -58,12 +58,12 @@ def declare_logic():
         
     Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
     
-    Rule.sum(derive=models.Account.AMOUNT, 
+    Rule.sum(derive=models.Account.BALANCE, 
                 as_sum_of=models.Transaction.TotalAmount)
     
     Rule.constraint(validate=models.Account, 
-                as_condition=lambda row: row.AcctBalance >= 0,
-                error_msg="Account balance {row.AcctBalance} cannot be less than zero")
+                as_condition=lambda row: row.BALANCE >= 0,
+                error_msg="Account balance {row.BALANCE} cannot be less than zero")
         
     Rule.formula(derive=models.Transaction.TotalAmount,
                 as_expression=lambda row: row.Deposit - row.Withdrawl)
@@ -81,25 +81,25 @@ def declare_logic():
                 error_msg="FromAccount {row.FromAccountID} must be different from ToAccount {row.ToAccountID}")
             
     def fn_overdraft(row=models.Account, old_row=models.Account, logic_row=LogicRow):
-        if row.AcctBalance  < 0: #  __lt__(0):
+        if row.BALANCE  < 0: #  __lt__(0):
             pass
             # Find and transfer funds from "Loan"
             #1) find loan account if exists
-            #2) if loanAcct.AcctBalance > overdraft then transfer funds
+            #2) if loanAcct.BALANCE > overdraft then transfer funds
             #3) If not found - then raise exception "Overdraft not allowed"
     
     Rule.commit_row_event(on_class=models.Account,calling=fn_overdraft)
     
     def fn_default_customer(row=models.Customer , old_row=models.Customer, logic_row=LogicRow):
-        if logic_row.ins_upd_dlt == "ins" and row.RegistrationDate is None:
-            row.RegistrationDate = date.today()
+        if logic_row.ins_upd_dlt == "ins" and row.STARTDATE is None:
+            row.STARTDATE = date.today()
         
     def fn_default_account(row=models.Account, old_row=models.Account, logic_row=LogicRow):
         if logic_row.ins_upd_dlt == "ins":
-            if row.AcctBalance is None:
-                row.AcctBalance = 0
-            if row.OpenDate is None:
-                row.OpenDate = date.today()
+            if row.BALANCE is None:
+                row.BALANCE = 0
+            if row.STARTDATE is None:
+                row.STARTDATE = date.today()
         
     def fn_default_transaction(row=models.Transaction, old_row=models.Transaction, logic_row=LogicRow):
         if logic_row.ins_upd_dlt == "ins":
@@ -126,14 +126,14 @@ def declare_logic():
         from sqlalchemy import select
         transactions = session.query(models.Transaction).all()
         try:
-            from_account = session.query(models.Account).filter(models.Account.AccountID == fromAcctId).one()
+            from_account = session.query(models.Account).filter(models.Account.ACCOUNTID == fromAcctId).one()
         except Exception as ex:
             raise requests.RequestException(
                 f"From Account {fromAcctId} not found"
             ) from ex
             
         try:
-            to_account = session.query(models.Account).filter(models.Account.AccountID == toAcctId).one()
+            to_account = session.query(models.Account).filter(models.Account.ACCOUNTID == toAcctId).one()
         except Exception as ex:
             raise requests.RequestException(
                 f"To Account {toAcctId} not found"
@@ -144,7 +144,7 @@ def declare_logic():
                 f"FromAccount Customer {from_account.Customer} must be the same as the ToAccount Customer {to_account.Customer}"
             ) from ex
         
-        if from_account.AcctBalance > amount:
+        if from_account.BALANCE > amount:
             # #Not Enough Funds - if Loan exists move to cover Overdraft (transfer Loan to from_acct)
             pass
             

@@ -1,5 +1,17 @@
 about:
   date: February 22, 2024 10:37:21
+  merged:
+    at: February 23, 2024 09:59:08
+    new_attributes: 'Account.ACCOUNTTYPENAME Account.ACCOUNTTYPEID Account.CUSTOMERID
+      Account.BALANCE Account.STARTDATE Account.ENDDATE Account.INTERESRATE Account.ACCOUNTID
+      Account.ENTITYID Account.OFFICEID Account.CDID Account.ANID AccountType.NAME
+      AccountType.AcctID Customer.NAME Customer.BRANCHID Customer.SURNAME Customer.EMAIL
+      Customer.ADDRESS Customer.STARTDATE Customer.CUSTOMERID Branch.NAME Branch.ADDRESS
+      Branch.STARTDATE Branch.OFFICEID Employee.NAME Employee.OFFICEID Employee.EMPLOYEESURNAME
+      Employee.EMPLOYEENAME Employee.EMPLOYEEADDRESS Employee.EMPLOYEESTARTDATE Employee.EMPLOYEEPHOTOTO
+      Employee.EMPLOYEEPHONE Employee.EMPLOYEEID Employee.EMPLOYEETYPEID '
+    new_resources: ''
+    new_tab_groups: 'Account.AccountType Employee.Branch '
   recent_changes: works with modified safrs-react-admin
   version: 0.0.0
 api_root: '{http_type}://{swagger_host}:{port}/{api}'
@@ -11,26 +23,33 @@ info:
 resources:
   Account:
     attributes:
-    - label: ' Account ID*'
-      name: ACCOUNTID
+    - label: ' Account I D*'
+      name: AccountID
       search: true
       sort: true
-    - label: 'Account Type'
-      name: ACCOUNTTYPEID
-    - label: Customer
-      name: CUSTOMERID
-    - label: Balance
-      name: BALANCE
-    - label: 'Start Date'
-      name: STARTDATE
-      type: Date
-    - label: 'End Date'
-      name: ENDDATE
-      type: Date
+    - name: AccountType
+    - name: CustomerID
+    - name: AcctBalance
+    - name: OpenDate
+    - label: ' A C C O U N T T Y P E N A M E*'
+      name: ACCOUNTTYPENAME
+      search: true
+      sort: true
+    - name: ACCOUNTTYPEID
+    - name: CUSTOMERID
+    - name: BALANCE
+    - name: STARTDATE
+    - name: ENDDATE
+    - name: INTERESRATE
+    - name: ACCOUNTID
+    - name: ENTITYID
+    - name: OFFICEID
+    - name: CDID
+    - name: ANID
     tab_groups:
     - direction: tomany
       fks:
-      - ACCOUNTTYPEID
+      - AccountID
       name: TransactionList
       resource: Transaction
     - direction: tomany
@@ -45,23 +64,34 @@ resources:
       resource: Transfer
     - direction: toone
       fks:
-      - ACCOUNTTYPEID
-      name: AccountType
+      - AccountType
+      name: AccountType1
       resource: AccountType
     - direction: toone
       fks:
-      - CUSTOMERID
+      - CustomerID
       name: Customer
       resource: Customer
+    - direction: toone
+      fks:
+      - ACCOUNTTYPEID
+      name: AccountType
+      resource: AccountType
     type: Account
     user_key: AccountID
   AccountType:
     attributes:
     - label: ' Name*'
+      name: Name
+      required: true
+      search: true
+      sort: true
+    - label: ' N A M E*'
       name: NAME
       required: true
       search: true
       sort: true
+    - name: AcctID
     tab_groups:
     - direction: tomany
       fks:
@@ -73,19 +103,24 @@ resources:
   Branch:
     attributes:
     - label: ' Name*'
+      name: Name
+      search: true
+      sort: true
+    - name: Office
+    - name: Address
+    - name: OpenDate
+    - name: BranchID
+    - label: ' N A M E*'
       name: NAME
       search: true
       sort: true
-    - label: Office
-      name: OFFICEID
-    - label: Address
-      name: ADDRESS
-    - label: StartDate
-      name: STARTDATE
+    - name: ADDRESS
+    - name: STARTDATE
+    - name: OFFICEID
     tab_groups:
     - direction: tomany
       fks:
-      - OFFICEID
+      - BranchID
       name: CustomerList
       resource: Customer
     - direction: tomany
@@ -98,63 +133,88 @@ resources:
   Customer:
     attributes:
     - label: ' First Name*'
+      name: FirstName
+      search: true
+      sort: true
+    - name: BranchID
+    - name: LastName
+    - name: Email
+    - name: PhoneNumber
+    - name: Address
+    - name: BirthDate
+      type: DATE
+    - name: RegistrationDate
+    - name: UserName
+    - name: CustomerID
+    - name: Password
+    - label: ' N A M E*'
       name: NAME
       search: true
       sort: true
-    - label: Branch
-      name: BRANCHID
-    - label: ' Last Name*'
-      name: SURNAME
-    - Label: Email
-      name: EMAIL
-    - label: Address
-      name: ADDRESS
-    - label: 'Start Date'
-      name: STARTDATE
-      type: DATE
+    - name: BRANCHID
+    - name: SURNAME
+    - name: EMAIL
+    - name: ADDRESS
+    - name: STARTDATE
+    - name: CUSTOMERID
     tab_groups:
     - direction: tomany
       fks:
-      - CUSTOMERID
+      - CustomerID
       name: AccountList
       resource: Account
     - direction: toone
       fks:
-      - BRANCHID
+      - BranchID
       name: Branch
       resource: Branch
     type: Customer
-    user_key: NAME
+    user_key: FirstName
   Employee:
     attributes:
-    - label: ' First Name*'
-      name: EMPLOYEENAME
+    - label: ' Last Name*'
+      name: LastName
       required: true
       search: true
       sort: true
-    - label: ' Last Name*'
-      name: EMPLOYEESURNAME
+    - name: Branch
+    - name: FirstName
       required: true
-    - label: ' Start Date'
-      name: EMPLOYEESTARTDATE
-      type: Date
-    - label: Branch
-      name: OFFICEID
-    - label: Photo
-      name: EMPLOYEEPHOTO
-      type: Image
+    - name: BirthDate
+    - name: Photo
+    - name: Notes
+    - name: EmployeeID
+    - label: ' N A M E*'
+      name: NAME
+      search: true
+      sort: true
+    - name: OFFICEID
+    - name: EMPLOYEESURNAME
+      required: true
+    - name: EMPLOYEENAME
+      required: true
+    - name: EMPLOYEEADDRESS
+    - name: EMPLOYEESTARTDATE
+    - name: EMPLOYEEPHOTOTO
+    - name: EMPLOYEEPHONE
     - name: EMPLOYEEID
+    - name: EMPLOYEETYPEID
     tab_groups:
+    - direction: toone
+      fks:
+      - Branch
+      name: Branch1
+      resource: Branch
     - direction: toone
       fks:
       - OFFICEID
       name: Branch
       resource: Branch
     type: Employee
-    user_key: EMPLOYEENAME
+    user_key: LastName
   Transaction:
     attributes:
-    - label: ' Transaction ID*'
+    - label: ' Transaction I D*'
       name: TransactionID
       search: true
       sort: true
@@ -165,7 +225,6 @@ resources:
     - name: Withdrawl
     - name: ItemImage
     - name: TransactionDate
-      type: Date
     tab_groups:
     - direction: toone
       fks:
@@ -184,7 +243,6 @@ resources:
     - name: ToAccountID
     - name: Amount
     - name: TransactionDate
-      type: Date
     tab_groups:
     - direction: toone
       fks:

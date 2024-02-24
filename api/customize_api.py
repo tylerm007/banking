@@ -3,7 +3,6 @@ import logging
 import yaml
 from pathlib import Path
 from flask_cors import cross_origin
-import util
 import safrs
 from flask import request, jsonify
 from flask_jwt_extended import get_jwt, jwt_required, verify_jwt_in_request
@@ -157,16 +156,15 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             -H 'Content-Type: application/vnd.api+json'       
         """
         payload = json.loads(request.data)
-        branch_id = 5
+
         for branch_record in payload["data"]:
             clz = models.Branch()
-            clz.Name = branch_record["Name"]
-            clz.Address = branch_record["Address"]
-            clz.Office = branch_record["Office"]
-            clz.OpenDate = date.today()
-            clz.BranchID = branch_id
+            clz.NAME = branch_record["Name"]
+            clz.ADDRESS = branch_record["Address"]
+            clz.OFFICEID = branch_record["Office"]
+            clz.STARTDATE = date.today()
             session.add(clz)
-            branch_id = branch_id + 1
+            
             session.commit()
         return jsonify(status=True)
     
@@ -180,16 +178,17 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         payload = json.loads(request.data)
         for customer_record in payload["data"]:
             clz = models.Customer()
-            clz.FirstName = customer_record["NAME"]
-            clz.LastName = customer_record["SURNAME"]
+            clz.NAME = customer_record["NAME"]
+            clz.SURNAME = customer_record["SURNAME"]
             if "ADDRESS" in customer_record:
-                clz.Address = customer_record["ADDRESS"]
+                clz.ADDRESS = customer_record["ADDRESS"]
             if "EMAIL" in customer_record:
-                clz.Email = customer_record["EMAIL"]
-            clz.RegistrationDate = date.today()
-            clz.CustomerID = customer_record["CUSTOMERID"]
-            clz.UserName = customer_record["NAME"]
-            clz.Password = "password"
+                clz.EMAIL = customer_record["EMAIL"]
+            clz.STARTDATE = date.today()
+            clz.CUSTOMERID = customer_record["CUSTOMERID"]
+            clz.NAME = customer_record["NAME"]
+            clz.BRANCHID = 3 #customer_record["BRANCHID"]
+            
             session.add(clz)
             session.commit()
         return jsonify(status=True)
@@ -204,16 +203,17 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         payload = json.loads(request.data)
         for customer_record in payload["data"]:
             clz = models.Employee()
-            clz.FirstName = customer_record["EMPLOYEENAME"]
-            clz.LastName = customer_record["EMPLOYEESURNAME"]
+            clz.EMPLOYEENAME = customer_record["EMPLOYEENAME"]
+            clz.EMPLOYEESURNAME = customer_record["EMPLOYEESURNAME"]
             if "EMPLOYEEADDRESS" in customer_record:
-                clz.Address = customer_record["EMPLOYEEADDRESS"]
-            if "EMPLOYEEEMAIL" in customer_record:
-                clz.Email = customer_record["EMPLOYEEEMAIL"]
+                clz.EMPLOYEEADDRESS = customer_record["EMPLOYEEADDRESS"]
+            #if "EMPLOYEEEMAIL" in customer_record:
+                #clz. = customer_record["EMPLOYEEEMAIL"]
             if "EMPLOYEEPHONE" in customer_record:
-                pass
-            clz.BirthDate = date.today()
-            clz.CustomerID = customer_record["EMPLOYEEID"]
+                clz.EMPLOYEEPHONE = customer_record["EMPLOYEEPHONE"]
+            clz.EMPLOYEESTARTDATE = date.today()
+            clz.EMPLOYEEID = customer_record["EMPLOYEEID"]
+            clz.OFFICEID = 3
 
             session.add(clz)
             session.commit()
