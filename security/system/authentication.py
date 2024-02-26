@@ -86,8 +86,8 @@ def configure_auth(flask_app: Flask, database: object, method_decorators: list[o
             username = request.json.get("username", None)
             password = request.json.get("password", None)
         except:
-            username = 'admin'
-            password = "password"
+            username = ''
+            password = ''
             auth = request.headers.get("Authorization", None)
             if auth and auth.startswith("Basic"):
                 import base64

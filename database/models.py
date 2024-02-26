@@ -1,6 +1,7 @@
 # coding: utf-8
 from sqlalchemy import Column, DECIMAL, DateTime, Enum, ForeignKey, Integer, LargeBinary, String, Text, text
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from sqlalchemy.ext.declarative import declarative_base
 
 ########################################################################################################################
@@ -103,7 +104,8 @@ class Customer(SAFRSBase, Base):
     EMAIL = Column(String(100))
     ADDRESS = Column(String(200))
     STARTDATE = Column(DateTime)
-    BRANCHID = Column(ForeignKey('Branch.OFFICEID'), server_default=text("'1'"), index=True)
+    PHOTO = Column(MEDIUMBLOB)
+    OFFICEID = Column(ForeignKey('Branch.OFFICEID'), server_default=text("'1'"), index=True)
 
     # parent relationships (access parent)
     Branch : Mapped["Branch"] = relationship(back_populates=("CustomerList"))
@@ -136,7 +138,7 @@ class Employee(SAFRSBase, Base):
     OFFICEID = Column(ForeignKey('Branch.OFFICEID'), server_default=text("'1'"), index=True)
     EMPLOYEEADDRESS = Column(String(100))
     EMPLOYEESTARTDATE = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    EMPLOYEEPHOTOTO = Column(LargeBinary)
+    EMPLOYEEPHOTOTO = Column(MEDIUMBLOB)
     NAME = Column(String(100))
     EMPLOYEEPHONE = Column(String(50))
 

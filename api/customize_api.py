@@ -213,7 +213,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                 clz.EMPLOYEEPHONE = customer_record["EMPLOYEEPHONE"]
             clz.EMPLOYEESTARTDATE = date.today()
             clz.EMPLOYEEID = customer_record["EMPLOYEEID"]
-            clz.OFFICEID = 3
+            clz.OFFICEID  = 3
 
             session.add(clz)
             session.commit()
@@ -232,7 +232,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
     @app.route("/ontimizeweb/services/qsallcomponents-jee/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
     @app.route("/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
     @admin_required() 
-    @cross_origin(vary_header=True)
+    #@cross_origin(vary_header=True)
     def api_search(path):
         s = path.split("/")
         clz_name = s[0]
@@ -261,7 +261,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                 #GET (sent as POST)
                 #rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
                 if "TypeAggregate" in clz_type:
-                    return get_rows_agg(request, api_clz, filter, columns)
+                    return get_rows_agg(request, api_clz, clz_type, filter, columns)
                 else:
                     return get_rows(request, api_clz,filter, orderBy, columns, pagesize, offset)
                 
@@ -269,10 +269,11 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         session.commit()
         return jsonify({f"{method}":True})
 
-    def get_rows_agg(request: any, api_clz, filter, columns):
+    def get_rows_agg(request: any, api_clz, agg_type, filter, columns):
         from sqlalchemy import func
-        resources = getMetaData(api_clz.__name__)
-        attributes = resources["resources"][api_clz.__name__]["attributes"]
+        key = api_clz.__name__
+        resources = getMetaData(key)
+        attributes = resources["resources"][key]["attributes"]
         list_of_columns = ""
         sep = ""
         attr_list = list(api_clz._s_columns)
@@ -289,9 +290,60 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                 sep = ","
         sql = f' count(*), {list_of_columns} from {table_name} group by {list_of_columns}'
         print(sql)
+        # TODO HARDCODED for now....
+        data = []
+        if "customerTypeAggregate" == agg_type:
+            data =  [
+                {
+                    "AMOUNT": 24,
+                    "DESCRIPTION": "Normal"
+                },
+                {
+                    "AMOUNT": 15,
+                    "DESCRIPTION": "VIP"
+                },
+                {
+                    "AMOUNT": 36,
+                    "DESCRIPTION": "Other"
+                }
+            ]
+        elif "accountTypeAggregate" == agg_type:
+            data =  [
+                {
+                    "AMOUNT": 32,
+                    "ACCOUNTTYPENAME": "Savings",
+                    "ACCOUNTTYPEID": 1
+                },
+                {
+                    "AMOUNT": 36,
+                    "ACCOUNTTYPENAME": "Checking",
+                    "ACCOUNTTYPEID": 0
+                },
+                {
+                    "AMOUNT": 30,
+                    "ACCOUNTTYPENAME": "Payroll",
+                    "ACCOUNTTYPEID": 3
+                },
+                {
+                    "AMOUNT": 23,
+                    "ACCOUNTTYPENAME": "Market",
+                    "ACCOUNTTYPEID": 2
+                }
+            ]
+        elif "employeeTypeAggregate" == agg_type:
+            data = [
+                {
+                    "AMOUNT": 27,
+                    "EMPLOYEETYPENAME": "Manager"
+                },
+                {
+                    "AMOUNT": 485,
+                    "EMPLOYEETYPENAME": "Employee"
+                }
+            ]
         #rows = session.query(text(sql)).all()
-        rows = session.query(models.Account.ACCOUNTTYPEID,func.count(models.Account.AccountID)).group_by(models.Account.ACCOUNTTYPEID).all()
-        return jsonify(rows)
+        #rows = session.query(models.Account.ACCOUNTTYPEID,func.count(models.Account.AccountID)).group_by(models.Account.ACCOUNTTYPEID).all()
+        return jsonify(data)
     
     def get_rows(request: any, api_clz, filter, order_by, columns, pagesize, offset):
         # New Style
@@ -358,12 +410,11 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         # {filter":{"@basic_expression":{"lop":"BALANCE","op":"<=","rop":35000}}
         filter_result = ""
         a = ""
-        for f in filter:
-            if f == '@basic_expression':
+        for db_colname in filter:
+            if db_colname == '@basic_expression':
                 continue
-            q = "" if f == "OFFICEID" else "'" #TODO use sqltypes for name == a
-            name = filter[f] #TODO f rename to internal column
-            db_colname = "BranchID" if f == "OFFICEID" else f
+            q = "" if db_colname == 'OFFICEID' else "'" 
+            name = filter[db_colname] 
             filter_result += f"{a} {db_colname} = {q}{name}{q}"
             a = " and "
         return None if filter_result == "" else filter_result
