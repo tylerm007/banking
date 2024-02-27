@@ -11,21 +11,34 @@ info:
 resources:
   Account:
     attributes:
-    - label: ' A C C O U N T T Y P E N A M E*'
+    - label: 'Account Name*'
       name: ACCOUNTTYPENAME
       search: true
       sort: true
-    - name: ACCOUNTTYPEID
-    - name: CUSTOMERID
-    - name: BALANCE
-    - name: STARTDATE
-    - name: ENDDATE
-    - name: INTERESRATE
-    - name: ACCOUNTID
-    - name: ENTITYID
-    - name: OFFICEID
-    - name: CDID
-    - name: ANID
+    - label: "Account Type ID"
+      name: ACCOUNTTYPEID
+    - label: "Customer ID"
+      name: CUSTOMERID
+    - label: "Balance"
+      name: BALANCE
+    - label: "Start Date"
+      name: STARTDATE
+      type: Date
+    - label: "End Date"
+      name: ENDDATE
+      type: Date
+    - label: "Interest Rate"
+      name: INTERESRATE
+    - label: "Account ID"
+      name: ACCOUNTID
+    - label: "Entity ID"
+      name: ENTITYID
+    - label: "Office ID"
+      name: OFFICEID
+    - label: "CDID"
+      name: CDID
+    - label: "ANID"
+      name: ANID
     tab_groups:
     - direction: tomany
       fks:
@@ -56,7 +69,7 @@ resources:
     user_key: ACCOUNTTYPENAME
   AccountType:
     attributes:
-    - label: ' N A M E*'
+    - label: 'Name*'
       name: NAME
       required: true
       search: true
@@ -72,13 +85,17 @@ resources:
     user_key: NAME
   Branch:
     attributes:
-    - label: ' N A M E*'
+    - label: ' Branch Name*'
       name: NAME
       search: true
       sort: true
-    - name: ADDRESS
-    - name: STARTDATE
-    - name: OFFICEID
+    - label: "Address"
+      name: ADDRESS
+    - label: "Start Date"
+      name: STARTDATE
+      type: Date
+    - label: "Branch"
+      name: OFFICEID
     tab_groups:
     - direction: tomany
       fks:
@@ -94,16 +111,23 @@ resources:
     user_key: NAME
   Customer:
     attributes:
-    - label: ' N A M E*'
+    - label: 'Name*'
       name: NAME
       search: true
       sort: true
-    - name: OFFICEID
-    - name: SURNAME
-    - name: EMAIL
-    - name: ADDRESS
-    - name: STARTDATE
-    - name: CUSTOMERID
+    - label: "Branch"
+      name: OFFICEID
+    - label: "Surname"
+      name: SURNAME
+    - label: "Email"
+      name: EMAIL
+    - label: "Address"
+      name: ADDRESS
+    - label: "Start Date"
+      name: STARTDATE
+      type: Date
+    - label: "Customer"
+      name: CUSTOMERID
     tab_groups:
     - direction: tomany
       fks:
@@ -119,21 +143,29 @@ resources:
     user_key: NAME
   Employee:
     attributes:
-    - label: ' N A M E*'
+    - label: ' Name*'
       name: NAME
       search: true
       sort: true
-    - name: OFFICEID
-    - name: EMPLOYEESURNAME
+    - label: "Branch"
+      name: OFFICEID
+    - label: "Surname *"
+      name: EMPLOYEESURNAME
       required: true
-    - name: EMPLOYEENAME
+    - label: "First Name*"
+      name: EMPLOYEENAME
       required: true
-    - name: EMPLOYEEADDRESS
-    - name: EMPLOYEESTARTDATE
-    - name: EMPLOYEEPHOTOTO
-    - name: EMPLOYEEPHONE
-    - name: EMPLOYEEID
-    - name: EMPLOYEETYPEID
+    - label: "Address"
+      name: EMPLOYEEADDRESS
+    - label: "Start Date"
+      name: EMPLOYEESTARTDATE
+      type: Date
+    - label: "Phone"
+      name: EMPLOYEEPHONE
+    - label: "Employee ID"
+      name: EMPLOYEEID
+    - label: "Employee Type"
+      name: EMPLOYEETYPEID
     tab_groups:
     - direction: toone
       fks:

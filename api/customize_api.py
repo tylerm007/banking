@@ -291,9 +291,9 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         sql = f' count(*), {list_of_columns} from {table_name} group by {list_of_columns}'
         print(sql)
         # TODO HARDCODED for now....
-        data = []
+        data = {}
         if "customerTypeAggregate" == agg_type:
-            data =  [
+            data = {"data": [
                 {
                     "AMOUNT": 24,
                     "DESCRIPTION": "Normal"
@@ -307,8 +307,9 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                     "DESCRIPTION": "Other"
                 }
             ]
+            }
         elif "accountTypeAggregate" == agg_type:
-            data =  [
+            data = {"data": [
                 {
                     "AMOUNT": 32,
                     "ACCOUNTTYPENAME": "Savings",
@@ -330,8 +331,9 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                     "ACCOUNTTYPEID": 2
                 }
             ]
+            }
         elif "employeeTypeAggregate" == agg_type:
-            data = [
+            data = {"data": [
                 {
                     "AMOUNT": 27,
                     "EMPLOYEETYPENAME": "Manager"
@@ -341,9 +343,13 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                     "EMPLOYEETYPENAME": "Employee"
                 }
             ]
+            }
+        data["code"] = 0
+        data["message"] = ""
+        data["sqlType"] = {}
         #rows = session.query(text(sql)).all()
         #rows = session.query(models.Account.ACCOUNTTYPEID,func.count(models.Account.AccountID)).group_by(models.Account.ACCOUNTTYPEID).all()
-        return jsonify(data)
+        return data
     
     def get_rows(request: any, api_clz, filter, order_by, columns, pagesize, offset):
         # New Style
