@@ -1,3 +1,19 @@
+# Install Banking for Ontimize POC
+Start with a running MySQL docker image
+1. Deploy database/authdb.sql
+2. Deploy database/banking.sql
+3. Modify config/config.py user/password and ports for:
+   SQLALCHEMY_DATABASE_URI
+   SQLALCHEMY_DATABASE_URI_AUTHENTICATION
+4. Optional - Install and start Docker Kafka modify the 
+   KAFKA_PRODUCER
+   KAFKA_CONSUMER
+5. Start the ATLAS server (press F5)
+6. Point Ontimize environments.ts
+apiEndpoint: 'http://localhost:5656/ontimizeweb/services/qsallcomponents-jee/services/rest'
+
+7. Put a breakpoint api/customize_api.py function
+    def api_search if you want to see PUT, POST, GET from Ontimize
 # Quick Start
 
 For **VSCode** Users, you are ready to run:
