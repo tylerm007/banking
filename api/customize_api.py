@@ -263,7 +263,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                 if "TypeAggregate" in clz_type:
                     return get_rows_agg(request, api_clz, clz_type, filter, columns)
                 else:
-                    return get_rows(request, api_clz,filter, orderBy, columns, pagesize, offset)
+                    return get_rows(request, api_clz, None, orderBy, columns, pagesize, offset)
                 
         session.execute(stmt)
         session.commit()

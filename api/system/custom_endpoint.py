@@ -63,8 +63,8 @@ def parseFilter(filter:dict,sqltypes: any):
     for f in filter:
         if f == '@basic_expression':
             continue
-        q = "'" #TODO use sqltypes for name == a
-        filter_result += f"{a} {f} = {q}{filter[f]}{q}"
+        q = "" #TODO use sqltypes for name == a
+        filter_result += f'{a} "{f}" = {q}{filter[f]}{q}'
         a = " and "
     return None if filter_result == "" else filter_result
 
@@ -280,7 +280,7 @@ class CustomEndpoint():
             filter_by = f'"{pkey}" = {self.quoteStr(value)}'
             self._pkeyList.append(self.quoteStr(value))
         elif altKey is not None:
-            filter_by = f'{pkey} = {self.quoteStr(altKey)}'
+            filter_by = f'"{pkey}" = {self.quoteStr(altKey)}'
             self._pkeyList.append(self.quoteStr(altKey))
         filter_by = filter_by if filter_ is None else f"{filter_by} and {filter_}" if filter_by is not None else filter_
         self._href = f"{request.url_root[:-1]}{request.path}"
