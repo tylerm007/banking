@@ -176,7 +176,7 @@ resources:
     user_key: NAME
   Transaction:
     attributes:
-    - label: ' Transaction I D*'
+    - label: ' Transaction ID*'
       name: TransactionID
       search: true
       sort: true
@@ -186,7 +186,9 @@ resources:
     - name: Deposit
     - name: Withdrawl
     - name: ItemImage
+      type: Image
     - name: TransactionDate
+      type: Date
     tab_groups:
     - direction: toone
       fks:
@@ -197,7 +199,7 @@ resources:
     user_key: TransactionID
   Transfer:
     attributes:
-    - label: ' Transaction I D*'
+    - label: ' Transaction ID*'
       name: TransactionID
       search: true
       sort: true
@@ -205,16 +207,17 @@ resources:
     - name: ToAccountID
     - name: Amount
     - name: TransactionDate
+      type: Date
     tab_groups:
     - direction: toone
       fks:
       - FromAccountID
-      name: Account
+      name: FromAccount
       resource: Account
     - direction: toone
       fks:
       - ToAccountID
-      name: Account1
+      name: ToAccount
       resource: Account
     type: Transfer
     user_key: TransactionID

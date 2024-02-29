@@ -277,7 +277,7 @@ class CustomEndpoint():
         filter_by = None
         #key = args.get(pkey) if args.get(pkey) is not None else args.get(f"filter[{pkey}]")
         if value is not None and value != 'undefined':
-            filter_by = f'{pkey} = {self.quoteStr(value)}'
+            filter_by = f'"{pkey}" = {self.quoteStr(value)}'
             self._pkeyList.append(self.quoteStr(value))
         elif altKey is not None:
             filter_by = f'{pkey} = {self.quoteStr(altKey)}'
@@ -818,25 +818,21 @@ class CustomEndpoint():
         dots = self.getAlias()
         filter_with_alias = f"filter.{dots}"if len(dots) > 0 else ""
         value = args.get(pkey) if args.get(pkey) is not None else args.get(f"filter[{pkey}]")
-        if value is None:
-            _sys_filter:str = args.get("sysfilter") 
-            _filter:str = args.get("filter") if args.get("filter") is not None else args.get(filter_with_alias) if args.get(filter_with_alias) is not None else None
+        #if value is None:
+        _sys_filter:str = args.get("sysfilter") 
+        _filter:str = args.get("filter") if args.get("filter") is not None else args.get(filter_with_alias) if args.get(filter_with_alias) is not None else None
         
-            """
-            sysfilter=equal(fieldName, value)
-            filter=fieldName=value and fieldName=value
-            
-            """
-            if _sys_filter:
-                if _sys_filter.startswith("equal("):
-                    f = _sys_filter[6:-1].split(":")
-                    pkey = f[0]
-                    value = f[1]
-            elif _filter:
-                f = _filter.split("=")
-                if len(f) > 1 and f[1] != 'undefined' and f[0] == self.primaryKey:
-                    pkey = f[0]
-                    value = f[1]
+        if _sys_filter:
+            if _sys_filter.startswith("equal("):
+                f = _sys_filter[6:-1].split(":")
+                pkey = f[0]
+                value = f[1]
+        elif _filter:
+            f = _filter.split("=")
+            if len(f) > 1 and f[1] != 'undefined' and f[0] == self.primaryKey:
+                q = '' if f[0] in ['OFFICEID','CUSTOMERID','ACCOUNTID','BRANCHID'] else "'" 
+                pkey = f'"{f[0]}"'
+                value = f"{q}{f[1]}{q}"
 
         limit = args.get("page[limit]") or args.get("pagesize") or 20
         offset = args.get("page[offset]") or args.get("offset")  or 0

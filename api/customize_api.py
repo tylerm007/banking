@@ -419,9 +419,9 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         for db_colname in filter:
             if db_colname == '@basic_expression':
                 continue
-            q = "" if db_colname == 'OFFICEID' else "'" 
+            q = "" if db_colname in ['OFFICEID','CUSTOMERID','ACCOUNTID','BRANCHID'] else "'" 
             name = filter[db_colname] 
-            filter_result += f"{a} {db_colname} = {q}{name}{q}"
+            filter_result += f'{a}"{db_colname}" = {q}{name}{q}'
             a = " and "
         return None if filter_result == "" else filter_result
         
