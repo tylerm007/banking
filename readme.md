@@ -1,7 +1,7 @@
 # Install Banking for Ontimize POC
-Start with a running MySQL docker image
-1. Deploy database/authdb.sql
-2. Deploy database/banking.sql
+Start with a running PostgreSQL docker image
+1. Deploy database/authdb_postgres.sql
+2. Deploy database/banking_postgres.sql
 3. Modify config/config.py user/password and ports for:
    SQLALCHEMY_DATABASE_URI
    SQLALCHEMY_DATABASE_URI_AUTHENTICATION
@@ -16,7 +16,7 @@ apiEndpoint: 'http://localhost:5656/ontimizeweb/services/qsallcomponents-jee/ser
 
 Put a breakpoint api/customize_api.py function
     def ontimize_endpoint if you want to see PUT, POST, GET from Ontimize
-    
+
 # Quick Start
 
 For **VSCode** Users, you are ready to run:

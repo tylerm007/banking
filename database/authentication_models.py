@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Integer, String, Text, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask import abort
@@ -38,7 +38,7 @@ metadata = Baseauthentication.metadata
 #NullType = db.String  # datatype fixup
 #TIMESTAMP= db.TIMESTAMP
 
-from sqlalchemy.dialects.mysql import *
+from sqlalchemy.dialects.postgresql import *
 
 
 
@@ -73,12 +73,12 @@ class User(SAFRSBase, Baseauthentication, db.Model, UserMixin):  # type: ignore
     _s_collection_name = 'authentication-User'  # type: ignore
     __bind_key__ = 'authentication'
 
-    name = Column(String(128))
+    name = Column(String(128), server_default=text("NULL::character varying"))
     notes = Column(Text)
     id = Column(String(64), primary_key=True)
-    username = Column(String(128))
-    email = Column(String(128))
-    password_hash = Column(String(200))
+    username = Column(String(128), server_default=text("NULL::character varying"))
+    email = Column(String(128), server_default=text("NULL::character varying"))
+    password_hash = Column(String(200), server_default=text("NULL::character varying"))
     client_id = Column(Integer)
     allow_client_generated_ids = True
 
@@ -133,7 +133,7 @@ class UserRole(SAFRSBase, Baseauthentication, db.Model, UserMixin):  # type: ign
 
     user_id = Column(ForeignKey('Users.id', ondelete='CASCADE'), primary_key=True, nullable=False)
     notes = Column(Text)
-    role_name = Column(ForeignKey('Role.name', ondelete='CASCADE'), primary_key=True, nullable=False, index=True)
+    role_name = Column(ForeignKey('Role.name', ondelete='CASCADE'), primary_key=True, nullable=False)
     allow_client_generated_ids = True
 
     # parent relationships (access parent)

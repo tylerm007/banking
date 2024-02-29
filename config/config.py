@@ -125,7 +125,8 @@ class Config:
     # Begin Multi-Database URLs (from ApiLogicServer add-db...)
 
 
-    SQLALCHEMY_DATABASE_URI_AUTHENTICATION = 'mysql+pymysql://root:password@127.0.0.1:3308/authdb'
+    #SQLALCHEMY_DATABASE_URI_AUTHENTICATION = 'mysql+pymysql://root:password@127.0.0.1:3308/authdb'
+    SQLALCHEMY_DATABASE_URI_AUTHENTICATION = f"postgresql://postgres:p@localhost/authdb"
     app_logger.info(f'config.py - SQLALCHEMY_DATABASE_URI_AUTHENTICATION: {SQLALCHEMY_DATABASE_URI_AUTHENTICATION}\n')
 
     # as desired, use env variable: export SQLALCHEMY_DATABASE_URI='sqlite:////Users/val/dev/servers/docker_api_logic_project/database/db.sqliteXX'
