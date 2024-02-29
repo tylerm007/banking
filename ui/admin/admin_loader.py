@@ -162,7 +162,7 @@ def admin_events(flask_app: Flask, args: Args, validation_error: ValidationError
         response.headers["Access-Control-Allow-Headers"] = "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token,  X-Requested-With, X-Auth-Token, Authorization, Access-Control-Allow-Origin"
             #"access-control-allow-origin, authorization, content-type
         response.headers["Access-Control-Expose-Headers"] = "X-Auth-Token, Content-disposition, X-Requested-With"
-        response.headers["Content-Type"] = "application/json, text/html"
+        response.headers["Content-Type"] = "application/vnd.api+json, application/json,text/html; charset=utf-8"
         
         # This is a short cut to auto login to Ontimize
         from security.system.authentication import access_token
@@ -173,7 +173,7 @@ def admin_events(flask_app: Flask, args: Args, validation_error: ValidationError
         response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
         #response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Xss-Protection"] = "1; mode=block"
-        response.headers["X-Frame-Options"] = "DENY"
+        #response.headers["X-Frame-Options"] = "DENY"
         response.headers["Expires"] = 0
         response.headers["Access-Control-Max-Age"] = 63072000
         response.headers["Strict-Transport-Security"] = "max-age=63072000"
