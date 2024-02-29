@@ -12,8 +12,11 @@ Start with a running MySQL docker image
 6. Point Ontimize environments.ts
 apiEndpoint: 'http://localhost:5656/ontimizeweb/services/qsallcomponents-jee/services/rest'
 
-7. Put a breakpoint api/customize_api.py function
-    def api_search if you want to see PUT, POST, GET from Ontimize
+7. Start Ontimize and run (http://localhost:4800) user: demo pw: demouser
+
+Put a breakpoint api/customize_api.py function
+    def ontimize_endpoint if you want to see PUT, POST, GET from Ontimize
+    
 # Quick Start
 
 For **VSCode** Users, you are ready to run:

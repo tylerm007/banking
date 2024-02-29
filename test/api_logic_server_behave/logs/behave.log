@@ -42,5 +42,12 @@ Feature: API GET Testing # features/api_get.feature:2
     When GET Transaction API          # features/steps/api_get.py:108
     Then Transaction retrieved        # features/steps/api_get.py:112
 
+Feature: Transfer Funds # features/transfer_funds.feature:1
+
+  Scenario: Transfer From Savings to Checking  # features/transfer_funds.feature:3
+    Given Transfer Transaction                 # features/steps/transfer_funds.py:21
+    When Transfer submitted                    # features/steps/transfer_funds.py:25
+    Then Rules Fire and Transaction Success    # None
+
 &nbsp;&nbsp;
-/Users/tylerband/dev/ApiLogicServer/banking/test/api_logic_server_behave/behave_run.py completed at February 22, 2024 08:32:07
+/Users/tylerband/dev/ApiLogicServer/banking/test/api_logic_server_behave/behave_run.py completed at February 29, 2024 10:12:09

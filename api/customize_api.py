@@ -471,7 +471,6 @@ class TransferFunds(safrs.JABase):
     def transfer(cls, *args, **kwargs):
         """ # yaml creates Swagger description
             args :
-                CustomerId: 1
                 FromAcctId: 8
                 ToAcctId: 7 
                 Amount: 10
@@ -484,7 +483,7 @@ class TransferFunds(safrs.JABase):
         customerId = payload.customer_id
         transactions = session.query(models.Transaction).all() #TODO where(CustomerID = N)
         try:
-            from_account = session.query(models.Account).filter(models.Account.AccountID == payload.FromAcctId).one()
+            from_account = session.query(models.Account).filter(models.Account.ACCOUNTID == payload.FromAcctId).one()
         except Exception as ex:
             raise requests.RequestException(
                 f"From Account {payload.FromAcctId} not found"
@@ -498,7 +497,7 @@ class TransferFunds(safrs.JABase):
         session.add(from_trans)
 
         try:
-            to_account = session.query(models.Account).filter(models.Account.AccountID == payload.ToAcctId).one()
+            to_account = session.query(models.Account).filter(models.Account.ACCOUNTID == payload.ToAcctId).one()
         except Exception as ex:
             raise requests.RequestException(
                 f"To Account {payload.ToAcctId} not found"
