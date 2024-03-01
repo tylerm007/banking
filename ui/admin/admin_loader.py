@@ -172,7 +172,7 @@ def admin_events(flask_app: Flask, args: Args, validation_error: ValidationError
         # Ontimize specific 
         response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
         #response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Xss-Protection"] = "1; mode=block"
+        #response.headers["X-Xss-Protection"] = "1; mode=block"
         #response.headers["X-Frame-Options"] = "DENY"
         response.headers["Expires"] = 0
         response.headers["Access-Control-Max-Age"] = 63072000

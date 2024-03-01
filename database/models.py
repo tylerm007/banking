@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 # Alter this file per your database maintenance policy
 #    See https://apilogicserver.github.io/Docs/Project-Rebuild/#rebuilding
 #
-# Created:  February 29, 2024 14:01:45
+# Created:  March 01, 2024 10:07:43
 # Database: postgresql://demo:demouser@localhost/ontimize
 # Dialect:  postgresql
 #
@@ -68,9 +68,9 @@ class Branch(SAFRSBase, Base):
     _s_collection_name = 'Branch'  # type: ignore
     __bind_key__ = 'None'
 
-    OFFICEID = Column(Integer, server_default=text("nextval('\"Branch_OFFICEID_seq\"'::regclass)"), primary_key=True)
-    NAME = Column(String(100), server_default=text("NULL::character varying"))
-    ADDRESS = Column(String(100), server_default=text("NULL::character varying"))
+    OFFICEID = Column(Integer, server_default=text("0"), primary_key=True)
+    NAME = Column(String(100))
+    ADDRESS = Column(String(100))
     STARTDATE = Column(Date)
 
     # parent relationships (access parent)
@@ -97,11 +97,11 @@ class Customer(SAFRSBase, Base):
     _s_collection_name = 'Customer'  # type: ignore
     __bind_key__ = 'None'
 
-    CUSTOMERID = Column(Integer, server_default=text("nextval('\"Customer_CUSTOMERID_seq\"'::regclass)"), primary_key=True)
-    NAME = Column(String(75), server_default=text("NULL::character varying"))
-    SURNAME = Column(String(75), server_default=text("NULL::character varying"))
-    EMAIL = Column(String(100), server_default=text("NULL::character varying"))
-    ADDRESS = Column(String(200), server_default=text("NULL::character varying"))
+    CUSTOMERID = Column(Integer, server_default=text("0"), primary_key=True)
+    NAME = Column(String(75))
+    SURNAME = Column(String(75))
+    EMAIL = Column(String(100))
+    ADDRESS = Column(String(200))
     STARTDATE = Column(Date)
     OFFICEID = Column(ForeignKey('Branch.OFFICEID'), server_default=text("1"))
     PHOTO = Column(Text)
@@ -130,16 +130,16 @@ class Employee(SAFRSBase, Base):
     _s_collection_name = 'Employee'  # type: ignore
     __bind_key__ = 'None'
 
-    EMPLOYEEID = Column(Integer, server_default=text("nextval('\"Employees_EMPLOYEEID_seq\"'::regclass)"), primary_key=True)
+    EMPLOYEEID = Column(Integer, server_default=text("0"), primary_key=True)
     EMPLOYEETYPEID = Column(Integer, server_default=text("1"))
     EMPLOYEESURNAME = Column(String(15), nullable=False)
     EMPLOYEENAME = Column(String(15), nullable=False)
     OFFICEID = Column(ForeignKey('Branch.OFFICEID'), server_default=text("1"))
-    EMPLOYEEADDRESS = Column(String(100), server_default=text("NULL::character varying"))
+    EMPLOYEEADDRESS = Column(String(100))
     EMPLOYEESTARTDATE = Column(Date, server_default=text("CURRENT_TIMESTAMP"))
     EMPLOYEEPHOTOTO = Column(Text)
-    NAME = Column(String(100), server_default=text("NULL::character varying"))
-    EMPLOYEEPHONE = Column(String(50), server_default=text("NULL::character varying"))
+    NAME = Column(String(100))
+    EMPLOYEEPHONE = Column(String(50))
 
     # parent relationships (access parent)
     Branch : Mapped["Branch"] = relationship(back_populates=("EmployeeList"))
@@ -164,18 +164,18 @@ class Account(SAFRSBase, Base):
     _s_collection_name = 'Account'  # type: ignore
     __bind_key__ = 'None'
 
-    ACCOUNTID = Column(Integer, server_default=text("nextval('\"Account_ACCOUNTID_seq\"'::regclass)"), primary_key=True)
+    ACCOUNTID = Column(Integer, server_default=text("0"), primary_key=True)
     CUSTOMERID = Column(ForeignKey('Customer.CUSTOMERID'))
     ACCOUNTTYPEID = Column(ForeignKey('AccountType.AcctID'))
-    ACCOUNTTYPENAME = Column(String(25), server_default=text("NULL::character varying"))
-    BALANCE = Column(Numeric(15, 2), server_default=text("0.00"))
+    ACCOUNTTYPENAME = Column(String(25))
+    BALANCE = Column(Numeric(15, 2), default=0)
     STARTDATE = Column(Date)
     ENDDATE = Column(Date)
     ENTITYID = Column(Integer, server_default=text("1"))
     OFFICEID = Column(Integer, server_default=text("1"))
-    CDID = Column(String(25), server_default=text("NULL::character varying"))
-    ANID = Column(String(25), server_default=text("NULL::character varying"))
-    INTERESRATE = Column(Numeric(15, 2), server_default=text("0.00"))
+    CDID = Column(String(25))
+    ANID = Column(String(25))
+    INTERESRATE = Column(Numeric(15, 2), default=0)
 
     # parent relationships (access parent)
     AccountType : Mapped["AccountType"] = relationship(back_populates=("AccountList"))
@@ -204,12 +204,12 @@ class Transaction(SAFRSBase, Base):
     _s_collection_name = 'Transaction'  # type: ignore
     __bind_key__ = 'None'
 
-    TransactionID = Column(Integer, server_default=text("nextval('\"Transaction_TransactionID_seq\"'::regclass)"), primary_key=True)
+    TransactionID = Column(Integer, server_default=text("0"), primary_key=True)
     AccountID = Column(ForeignKey('Account.ACCOUNTID'))
-    TransactionType = Column(String(25), server_default=text("NULL::character varying"))
-    TotalAmount = Column(Numeric(15, 2), server_default=text("0.00"))
-    Deposit = Column(Numeric(15, 2), server_default=text("0.00"))
-    Withdrawl = Column(Numeric(15, 2), server_default=text("0.00"))
+    TransactionType = Column(String(25), server_default=text("Deposit"))
+    TotalAmount = Column(Numeric(15, 2), default=0)
+    Deposit = Column(Numeric(15, 2), default=0)
+    Withdrawl = Column(Numeric(15, 2), default=0)
     ItemImage = Column(Text)
     TransactionDate = Column(Date)
 
@@ -236,11 +236,11 @@ class Transfer(SAFRSBase, Base):
     _s_collection_name = 'Transfer'  # type: ignore
     __bind_key__ = 'None'
 
-    TransactionID = Column(Integer, server_default=text("nextval('\"Transfer_TransactionID_seq\"'::regclass)"), primary_key=True)
+    TransactionID = Column(Integer, server_default=text("0"), primary_key=True)
     FromAccountID = Column(ForeignKey('Account.ACCOUNTID'))
     ToAccountID = Column(ForeignKey('Account.ACCOUNTID'))
-    Amount = Column(Numeric(15, 2), server_default=text("0.00"))
-    TransactionDate = Column("transactiondate",Date)
+    Amount = Column(Numeric(15, 2), default=0)
+    TransactionDate = Column(Date)
 
     # parent relationships (access parent)
     FromAccount : Mapped["Account"] = relationship(foreign_keys='[Transfer.FromAccountID]', back_populates=("TransferList"))
