@@ -162,7 +162,7 @@ def admin_events(flask_app: Flask, args: Args, validation_error: ValidationError
         response.headers["Access-Control-Allow-Headers"] = "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token,  X-Requested-With, X-Auth-Token, Authorization, Access-Control-Allow-Origin"
             #"access-control-allow-origin, authorization, content-type
         response.headers["Access-Control-Expose-Headers"] = "X-Auth-Token, Content-disposition, X-Requested-With"
-        response.headers["Content-Type"] = "application/json, text/html"
+        #response.headers["Content-Type"] = "application/json, text/html"
         
         # This is a short cut to auto login to Ontimize
         from security.system.authentication import access_token
