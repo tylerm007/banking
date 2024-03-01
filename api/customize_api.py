@@ -1,5 +1,6 @@
 from functools import wraps
 import logging
+import api.system.api_utils as api_utils
 import yaml
 from pathlib import Path
 from flask_cors import cross_origin
@@ -147,7 +148,16 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
 
         os.kill(os.getpid(), signal.SIGINT)
         return jsonify({ "success": True, "message": "Server is shutting down..." })
+    @app.route('/server_log')
+    def server_log():
+        """
+        Used by test/api_logic_server_behave/features/steps/test_utils.py - enables client app to log msg into server
 
+        Special support for the msg parameter -- Rules Report
+        """
+        return api_utils.server_log(request, jsonify)
+    
+    
     @app.route("/branch", methods=['POST'])
     def branch():
         """

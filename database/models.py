@@ -68,7 +68,7 @@ class Branch(SAFRSBase, Base):
     _s_collection_name = 'Branch'  # type: ignore
     __bind_key__ = 'None'
 
-    OFFICEID = Column(Integer, server_default=text("0"), primary_key=True)
+    OFFICEID = Column(Integer, primary_key=True)
     NAME = Column(String(100))
     ADDRESS = Column(String(100))
     STARTDATE = Column(Date)
@@ -97,7 +97,7 @@ class Customer(SAFRSBase, Base):
     _s_collection_name = 'Customer'  # type: ignore
     __bind_key__ = 'None'
 
-    CUSTOMERID = Column(Integer, server_default=text("0"), primary_key=True)
+    CUSTOMERID = Column(Integer,  primary_key=True)
     NAME = Column(String(75))
     SURNAME = Column(String(75))
     EMAIL = Column(String(100))
@@ -130,7 +130,7 @@ class Employee(SAFRSBase, Base):
     _s_collection_name = 'Employee'  # type: ignore
     __bind_key__ = 'None'
 
-    EMPLOYEEID = Column(Integer, server_default=text("0"), primary_key=True)
+    EMPLOYEEID = Column(Integer, primary_key=True)
     EMPLOYEETYPEID = Column(Integer, server_default=text("1"))
     EMPLOYEESURNAME = Column(String(15), nullable=False)
     EMPLOYEENAME = Column(String(15), nullable=False)
@@ -164,7 +164,7 @@ class Account(SAFRSBase, Base):
     _s_collection_name = 'Account'  # type: ignore
     __bind_key__ = 'None'
 
-    ACCOUNTID = Column(Integer, server_default=text("0"), primary_key=True)
+    ACCOUNTID = Column(Integer, primary_key=True)
     CUSTOMERID = Column(ForeignKey('Customer.CUSTOMERID'))
     ACCOUNTTYPEID = Column(ForeignKey('AccountType.AcctID'))
     ACCOUNTTYPENAME = Column(String(25))
@@ -204,7 +204,7 @@ class Transaction(SAFRSBase, Base):
     _s_collection_name = 'Transaction'  # type: ignore
     __bind_key__ = 'None'
 
-    TransactionID = Column(Integer, server_default=text("0"), primary_key=True)
+    TransactionID = Column(Integer, primary_key=True)
     AccountID = Column(ForeignKey('Account.ACCOUNTID'))
     TransactionType = Column(String(25), server_default=text("Deposit"))
     TotalAmount = Column(Numeric(15, 2), default=0)
@@ -236,7 +236,7 @@ class Transfer(SAFRSBase, Base):
     _s_collection_name = 'Transfer'  # type: ignore
     __bind_key__ = 'None'
 
-    TransactionID = Column(Integer, server_default=text("0"), primary_key=True)
+    TransactionID = Column(Integer, primary_key=True)
     FromAccountID = Column(ForeignKey('Account.ACCOUNTID'))
     ToAccountID = Column(ForeignKey('Account.ACCOUNTID'))
     Amount = Column(Numeric(15, 2), default=0)

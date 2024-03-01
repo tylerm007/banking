@@ -1,0 +1,62 @@
+
+The following rules have been activated
+ - 2024-03-01 11:43:54,676 - logic_logger - DEBUG
+Rule Bank[0x110f6e050] (loaded 2024-03-01 11:43:48.174507)		##   - 2024-03-01 11:43:54,676 - logic_logger - INFO
+Mapped Class[Account] rules:		##   - 2024-03-01 11:43:54,676 - logic_logger - INFO
+  Derive Account.BALANCE as Sum(Transaction.TotalAmount Where None)		##   - 2024-03-01 11:43:54,676 - logic_logger - INFO
+  Constraint Function: None 		##   - 2024-03-01 11:43:54,676 - logic_logger - INFO
+  RowEvent Account.fn_overdraft() 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  RowEvent Account.fn_default_account() 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+Mapped Class[Transaction] rules:		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  Derive Transaction.TotalAmount as Formula (1): as_expression=lambda row: row.Deposit - row.Withd [...]		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  Constraint Function: None 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  Constraint Function: None 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  RowEvent Transaction.fn_default_transaction() 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+Mapped Class[Transfer] rules:		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  Constraint Function: None 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  RowEvent Transfer.fn_default_transfer() 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  RowEvent Transfer.fn_transfer_funds() 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  RowEvent Transfer.send_kafka_message() 		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+Mapped Class[Customer] rules:		##   - 2024-03-01 11:43:54,677 - logic_logger - INFO
+  RowEvent Customer.fn_default_customer() 		##   - 2024-03-01 11:43:54,678 - logic_logger - INFO
+Logic Bank - 18 rules loaded - 2024-03-01 11:43:54,678 - logic_logger - INFO
+Logic Bank - 18 rules loaded - 2024-03-01 11:43:54,678 - logic_logger - INFO
+
+Logic Phase:		ROW LOGIC		(session=0x113a36210) (sqlalchemy before_flush)			 - 2024-03-01 11:43:55,067 - logic_logger - INFO
+..Transaction[29] {Insert - client} TransactionID: 29, AccountID: 7, TransactionType: Withdrawal, TotalAmount: None, Deposit: None, Withdrawl: 10, ItemImage: None, TransactionDate: 2024-03-01  row: 0x113a36590  session: 0x113a36210  ins_upd_dlt: ins - 2024-03-01 11:43:55,069 - logic_logger - INFO
+..Transaction[29] {Formula TotalAmount} TransactionID: 29, AccountID: 7, TransactionType: Withdrawal, TotalAmount: -10, Deposit: 0, Withdrawl: 10, ItemImage: None, TransactionDate: 2024-03-01  row: 0x113a36590  session: 0x113a36210  ins_upd_dlt: ins - 2024-03-01 11:43:55,071 - logic_logger - INFO
+....Account[7] {Update - Adjusting Account: BALANCE} ACCOUNTID: 7, CUSTOMERID: 10602, ACCOUNTTYPEID: 2, ACCOUNTTYPENAME: Savings, BALANCE:  [38.00-->] 28.00, STARTDATE: 2024-02-24, ENDDATE: 2024-02-27, ENTITYID: 1, OFFICEID: 1, CDID: None, ANID: None, INTERESRATE: 0.00  row: 0x113a40590  session: 0x113a36210  ins_upd_dlt: upd - 2024-03-01 11:43:55,071 - logic_logger - INFO
+Logic Phase:		COMMIT LOGIC		(session=0x113a36210)   										 - 2024-03-01 11:43:55,073 - logic_logger - INFO
+....Account[7] {Commit Event} ACCOUNTID: 7, CUSTOMERID: 10602, ACCOUNTTYPEID: 2, ACCOUNTTYPENAME: Savings, BALANCE:  [38.00-->] 28.00, STARTDATE: 2024-02-24, ENDDATE: 2024-02-27, ENTITYID: 1, OFFICEID: 1, CDID: None, ANID: None, INTERESRATE: 0.00  row: 0x113a40590  session: 0x113a36210  ins_upd_dlt: upd - 2024-03-01 11:43:55,073 - logic_logger - INFO
+Logic Phase:		AFTER_FLUSH LOGIC	(session=0x113a36210)   										 - 2024-03-01 11:43:55,113 - logic_logger - INFO
+
+Rules Fired:		## - 2024-03-01 11:43:55,113 - logic_logger - INFO
+  Account		## - 2024-03-01 11:43:55,114 - logic_logger - INFO
+    1. Derive Account.BALANCE as Sum(Transaction.TotalAmount Where None)		## - 2024-03-01 11:43:55,114 - logic_logger - INFO
+    2. RowEvent Account.fn_default_account() 		## - 2024-03-01 11:43:55,114 - logic_logger - INFO
+    3. RowEvent Account.fn_overdraft() 		## - 2024-03-01 11:43:55,115 - logic_logger - INFO
+  Transaction		## - 2024-03-01 11:43:55,115 - logic_logger - INFO
+    4. Derive Transaction.TotalAmount as Formula (1): as_expression=lambda row: row.Deposit - row.Withd [...]		## - 2024-03-01 11:43:55,116 - logic_logger - INFO
+    5. RowEvent Transaction.fn_default_transaction() 		## - 2024-03-01 11:43:55,116 - logic_logger - INFO
+
+Logic Phase:		COMPLETE(session=0x113a36210))       	 - 2024-03-01 11:43:55,116 - logic_logger - INFO
+Logic Phase:		ROW LOGIC IGNORE RE-RAISE(session=0x113a36210) (sqlalchemy before_flush)			 - 2024-03-01 11:43:55,119 - logic_logger - DEBUG
+
+Logic Phase:		ROW LOGIC		(session=0x113a36210) (sqlalchemy before_flush)			 - 2024-03-01 11:43:55,119 - logic_logger - INFO
+..Transaction[30] {Insert - client} TransactionID: 30, AccountID: 6, TransactionType: Deposit, TotalAmount: None, Deposit: 10, Withdrawl: None, ItemImage: None, TransactionDate: 2024-03-01  row: 0x113a36ad0  session: 0x113a36210  ins_upd_dlt: ins - 2024-03-01 11:43:55,120 - logic_logger - INFO
+..Transaction[30] {Formula TotalAmount} TransactionID: 30, AccountID: 6, TransactionType: Deposit, TotalAmount: 10, Deposit: 10, Withdrawl: 0, ItemImage: None, TransactionDate: 2024-03-01  row: 0x113a36ad0  session: 0x113a36210  ins_upd_dlt: ins - 2024-03-01 11:43:55,121 - logic_logger - INFO
+....Account[6] {Update - Adjusting Account: BALANCE} ACCOUNTID: 6, CUSTOMERID: 10602, ACCOUNTTYPEID: 1, ACCOUNTTYPENAME: Checking, BALANCE:  [2062.00-->] 2072.00, STARTDATE: 2024-02-24, ENDDATE: None, ENTITYID: 1, OFFICEID: 1, CDID: None, ANID: None, INTERESRATE: 0.00  row: 0x113a83f10  session: 0x113a36210  ins_upd_dlt: upd - 2024-03-01 11:43:55,122 - logic_logger - INFO
+Logic Phase:		COMMIT LOGIC		(session=0x113a36210)   										 - 2024-03-01 11:43:55,123 - logic_logger - INFO
+....Account[6] {Commit Event} ACCOUNTID: 6, CUSTOMERID: 10602, ACCOUNTTYPEID: 1, ACCOUNTTYPENAME: Checking, BALANCE:  [2062.00-->] 2072.00, STARTDATE: 2024-02-24, ENDDATE: None, ENTITYID: 1, OFFICEID: 1, CDID: None, ANID: None, INTERESRATE: 0.00  row: 0x113a83f10  session: 0x113a36210  ins_upd_dlt: upd - 2024-03-01 11:43:55,124 - logic_logger - INFO
+Logic Phase:		AFTER_FLUSH LOGIC	(session=0x113a36210)   										 - 2024-03-01 11:43:55,128 - logic_logger - INFO
+
+Rules Fired:		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+  Account		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+    1. Derive Account.BALANCE as Sum(Transaction.TotalAmount Where None)		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+    2. RowEvent Account.fn_default_account() 		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+    3. RowEvent Account.fn_overdraft() 		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+  Transaction		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+    4. Derive Transaction.TotalAmount as Formula (1): as_expression=lambda row: row.Deposit - row.Withd [...]		## - 2024-03-01 11:43:55,129 - logic_logger - INFO
+    5. RowEvent Transaction.fn_default_transaction() 		## - 2024-03-01 11:43:55,130 - logic_logger - INFO
+
+Logic Phase:		COMPLETE(session=0x113a36210))       	 - 2024-03-01 11:43:55,130 - logic_logger - INFO
