@@ -229,13 +229,26 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             session.commit()
         return jsonify(status=True)
     
+    @app.route("/api/entityList", methods=["GET","OPTIONS"])
+    @cross_origin()
+    def entity_list():
+        import yaml
+
+        with open("//Users/tylerband/ontimize/banking/ui/admin/admin.yaml", 'r') as f:
+            valuesYaml = yaml.load(f, Loader=yaml.FullLoader)
+        print(valuesYaml['resources'])
+        return jsonify(valuesYaml)
+
+    
+        
     api_map = {
         "employees": models.Employee,
         "customers": models.Customer,
         "branches": models.Branch,
         "accounts": models.Account,
         "accounttypes": models.AccountType,
-        "transactions": models.Transaction
+        "transactions": models.Transaction,
+        "reportstore": None
     }
     # http://localhost:5656/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
@@ -247,13 +260,17 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         s = path.split("/")
         clz_name = s[0]
         clz_type = s[1] #[2] TODO customerType search advancedSearch defer(photo)customerTypeAggregate
-        api_clz = api_map.get(clz_name)
+        
         method = request.method
         rows = []
         #CORS 
         if method == "OPTIONS":
             return jsonify(success=True)
         
+        if clz_type == "listReports":
+            return {}
+        
+        api_clz = api_map.get(clz_name)
         payload = json.loads(request.data)
         filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
         
