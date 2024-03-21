@@ -174,6 +174,22 @@ resources:
       resource: Branch
     type: Employee
     user_key: NAME
+  Movement:
+    attributes:
+    - label: ' M O V E M E N T I D*'
+      name: MOVEMENTID
+      search: true
+      sort: true
+    - name: MOVEMENT
+    - name: Deposit
+    - name: Withdrawl
+    - name: ItemImage
+    - name: DATE_
+      type: DATE
+    - name: ACCOUNTID
+    - name: MOVEMENTTYPEID
+    type: Movement
+    user_key: MOVEMENTID
   Transaction:
     attributes:
     - label: ' Transaction ID*'

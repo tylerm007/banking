@@ -78,6 +78,36 @@ class Branch(SAFRSBase, Base):
     # child relationships (access children)
     CustomerList : Mapped[List["Customer"]] = relationship(back_populates="Branch")
     EmployeeList : Mapped[List["Employee"]] = relationship(back_populates="Branch")
+    @jsonapi_attr
+    def _check_sum_(self):  # type: ignore [no-redef]
+        return None if isinstance(self, flask_sqlalchemy.model.DefaultMeta) \
+            else self._check_sum_property if hasattr(self,"_check_sum_property") \
+                else None  # property does not exist during initialization
+
+    @_check_sum_.setter
+    def _check_sum_(self, value):  # type: ignore [no-redef]
+        self._check_sum_property = value
+
+    S_CheckSum = _check_sum_
+
+
+class Movement(SAFRSBase, Base):
+    __tablename__ = 'Movements'
+    _s_collection_name = 'Movement'  # type: ignore
+    __bind_key__ = 'None'
+
+    MOVEMENTID = Column(Integer, server_default=text("0"), primary_key=True)
+    ACCOUNTID = Column(Integer)
+    MOVEMENTTYPEID = Column(Integer, server_default=text("1"))
+    MOVEMENT = Column(Numeric(15, 2), server_default=text("0.00"))
+    Deposit = Column(Numeric(15, 2), server_default=text("0.00"))
+    Withdrawl = Column(Numeric(15, 2), server_default=text("0.00"))
+    ItemImage = Column(Text)
+    DATE_ = Column(Date)
+
+    # parent relationships (access parent)
+
+    # child relationships (access children)
 
     @jsonapi_attr
     def _check_sum_(self):  # type: ignore [no-redef]

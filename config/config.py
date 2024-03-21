@@ -121,8 +121,9 @@ class Config:
             SECURITY_ENABLED = True
         app_logger.debug(f'Security .. overridden from env variable: {SECURITY_ENABLED}')
     if SECURITY_ENABLED:
-        # from security.authentication_provider.sql.auth_provider import Authentication_Provider
-        from security.authentication_provider.keycloak.auth_provider import Authentication_Provider  #val set this up
+        from security.authentication_provider.sql.auth_provider import Authentication_Provider
+        #from security.authentication_provider.keycloak.auth_provider import Authentication_Provider  #val set this up
+        #SECURITY_PROVIDER = Authentication_Provider
         SECURITY_PROVIDER = Authentication_Provider
 
     app_logger.info(f'config.py - security {SECURITY_ENABLED}')

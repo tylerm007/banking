@@ -65,7 +65,7 @@ def configure_auth(flask_app: Flask, database: object, method_decorators: list[o
     """
     from config.config import Config
 
-    Config.SECURITY_PROVIDER.configure_auth(flask_app=flask_app)   # type-specific configuration
+    #Config.SECURITY_PROVIDER.configure_auth(flask_app=flask_app)   # type-specific configuration
 
     flask_app.config["PROPAGATE_EXCEPTIONS"] = True
     flask_app.config["JWT_SECRET_KEY"] = "ApiLogicServerSecret"  # Change this!

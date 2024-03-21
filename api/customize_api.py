@@ -248,8 +248,11 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         "accounts": models.Account,
         "accounttypes": models.AccountType,
         "transactions": models.Transaction,
-        "reportstore": None
+        "reportstory": None,
+        "customerAccount": models.Account,
+        "movements": models.Movement
     }
+    #customers/customerAccount/search
     # http://localhost:5656/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
     #https://try.imatia.com/ontimizeweb/services/qsallcomponents-jee/services/rest/customers/customerType/search
     @app.route("/ontimizeweb/services/qsallcomponents-jee/services/rest/<path:path>", methods=['POST','PUT','PATCH','DELETE','OPTIONS'])
@@ -271,6 +274,11 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             return {}
         
         api_clz = api_map.get(clz_name)
+        if clz_name == 'customers' and clz_type == 'customerAccount':
+            api_clz = models.Account
+        if clz_name == 'branches' and clz_type == 'account':
+            api_clz = models.Account
+            
         payload = json.loads(request.data)
         filter, columns, sqltypes, offset, pagesize, orderBy, data = parsePayload(payload)
         
@@ -283,7 +291,9 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         if method == 'POST':
             if data != None:
                 #this is an insert
+                fix_payload(data, sqltypes)
                 stmt = insert(api_clz).values(data)
+                
             else:
                 #GET (sent as POST)
                 #rows = get_rows_by_query(api_clz, filter, orderBy, columns, pagesize, offset)
@@ -294,7 +304,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
                 
         session.execute(stmt)
         session.commit()
-        return jsonify({f"{method}":True})
+        return jsonify({"code":0,"message":f"{method}:True","data":{},"sqlTypes":None})   #{f"{method}":True})
 
     def get_rows_agg(request: any, api_clz, agg_type, filter, columns):
         from sqlalchemy import func
@@ -432,7 +442,7 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
         filter = parseFilter(payload.get('filter', {}),sqltypes)
         columns:list = payload.get('columns') or []
         offset:int = payload.get('offset') or 0
-        pagesize:int = payload.get('pageSize') or 25
+        pagesize:int = payload.get('pageSize') or 99
         orderBy:list = payload.get('orderBy') or []
         data = payload.get('data',None)
         
@@ -469,6 +479,13 @@ def expose_services(app, api, project_dir, swagger_host: str, PORT: str):
             result = f"{orderBy[0]['columnName']}" #TODO for desc
         return result
     
+    def fix_payload(data, sqltypes):
+        import datetime 
+        for t in sqltypes:
+            if sqltypes[t] == 91: #Date
+                my_date = float(data[t])/1000
+                data[t] = datetime.datetime.fromtimestamp(my_date).strftime('%Y-%m-%d %H:%M:%S')
+
 def rows_to_dict(result: any) -> list:
     """
     Converts SQLAlchemy result (mapped or raw) to dict array of un-nested rows
@@ -498,7 +515,7 @@ class TransferFunds(safrs.JABase):
     def transfer(cls, *args, **kwargs):
         """ # yaml creates Swagger description
             args :
-                FromAcctId: 8
+                FromAcctId: 6
                 ToAcctId: 7 
                 Amount: 10
         """

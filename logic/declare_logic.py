@@ -56,30 +56,6 @@ def declare_logic():
                 row.OpenDate = datetime.datetime.now()
                 logic_row.log("early_row_event_all_classes - handle_all sets 'OpenDate"'')
         
-    Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
-    
-    Rule.sum(derive=models.Account.BALANCE, 
-                as_sum_of=models.Transaction.TotalAmount)
-    
-    Rule.constraint(validate=models.Account, 
-                as_condition=lambda row: row.BALANCE >= 0,
-                error_msg="Account balance {row.BALANCE} cannot be less than zero")
-        
-    Rule.formula(derive=models.Transaction.TotalAmount,
-                as_expression=lambda row: row.Deposit - row.Withdrawl)
-    
-    Rule.constraint(validate=models.Transaction, 
-                as_condition=lambda row: row.Deposit >= 0,
-                error_msg="Deposit {row.Deposit} must be a positive amount")
-    
-    Rule.constraint(validate=models.Transaction, 
-                as_condition=lambda row: row.Withdrawl >= 0,
-                error_msg="Withdrawl {row.Withdrawl} must be a positive amount")
-    
-    Rule.constraint(validate=models.Transfer, 
-                as_condition=lambda row: row.FromAccountID != row.ToAccountID,
-                error_msg="FromAccount {row.FromAccountID} must be different from ToAccount {row.ToAccountID}")
-            
     def fn_overdraft(row=models.Account, old_row=models.Account, logic_row=LogicRow):
         if row.BALANCE  < 0: #  __lt__(0):
             pass
@@ -193,6 +169,31 @@ def declare_logic():
 
     Rule.commit_row_event(on_class=models.Transfer, calling=fn_transfer_funds)
     Rule.after_flush_row_event(on_class=models.Transfer,calling=send_kafka_message)
+    
+    Rule.early_row_event_all_classes(early_row_event_all_classes=handle_all)
+    
+    Rule.sum(derive=models.Account.BALANCE, 
+                as_sum_of=models.Transaction.TotalAmount)
+    
+    Rule.constraint(validate=models.Account, 
+                as_condition=lambda row: row.BALANCE >= 0,
+                error_msg="Account balance {row.BALANCE} cannot be less than zero")
+        
+    Rule.formula(derive=models.Transaction.TotalAmount,
+                as_expression=lambda row: row.Deposit - row.Withdrawl)
+    
+    Rule.constraint(validate=models.Transaction, 
+                as_condition=lambda row: row.Deposit >= 0,
+                error_msg="Deposit {row.Deposit} must be a positive amount")
+    
+    Rule.constraint(validate=models.Transaction, 
+                as_condition=lambda row: row.Withdrawl >= 0,
+                error_msg="Withdrawl {row.Withdrawl} must be a positive amount")
+    
+    Rule.constraint(validate=models.Transfer, 
+                as_condition=lambda row: row.FromAccountID != row.ToAccountID,
+                error_msg="FromAccount {row.FromAccountID} must be different from ToAccount {row.ToAccountID}")
+            
     declare_logic_message = "..logic/declare_logic.py (logic == rules + code)"
     app_logger.debug("..logic/declare_logic.py (logic == rules + code)")
 
